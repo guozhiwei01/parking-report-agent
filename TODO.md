@@ -110,17 +110,17 @@
 
 ## 8. 图表和 DOCX 渲染
 
-- [ ] 生成至少一张真实图表 PNG。
-- [ ] 使用 python-docx 生成最终报告。
-- [ ] 填入六个硬指标。
-- [ ] 插入 Agent 生成的观察和建议。
-- [ ] 输出到 `storage/reports/{job_id}.docx`。
+- [x] 生成至少一张真实图表 PNG。
+- [x] 使用 python-docx 生成最终报告。
+- [x] 填入六个硬指标。
+- [x] 插入 Agent 生成的观察和建议。
+- [x] 输出到 `storage/reports/{job_id}.docx`。
 
 验收：
 
-- [ ] 生成文件是可打开的 `.docx`。
-- [ ] 报告包含至少一张真实图表。
-- [ ] 硬指标值与 analyzer 一致。
+- [x] 生成文件是可打开的 `.docx`。
+- [x] 报告包含至少一张真实图表。
+- [x] 硬指标值与 analyzer 一致。
 
 建议提交：`Render DOCX parking report`
 

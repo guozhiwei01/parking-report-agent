@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from docx import Document
+
 from app.core.config import get_settings
 from app.workflow.graph import build_report_graph
 
@@ -7,11 +9,13 @@ from app.workflow.graph import build_report_graph
 def test_report_graph_runs_with_fake_nodes(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("STORAGE_DIR", str(tmp_path))
     get_settings.cache_clear()
+    template_path = tmp_path / "template.docx"
+    Document().save(template_path)
 
     final_state = build_report_graph().invoke(
         {
             "job_id": "job-1",
-            "template_path": "template.docx",
+            "template_path": str(template_path),
             "data_path": "Interview_materials/data.csv",
             "instructions": None,
         }

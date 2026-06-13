@@ -5,7 +5,9 @@ from langgraph.graph import END, StateGraph
 
 from app.core.config import get_settings
 from app.reporting.analyzer import analyze_transactions
+from app.reporting.charts import generate_report_charts
 from app.reporting.llm import generate_report_draft
+from app.reporting.renderer import render_report_docx
 from app.services.logging import log_event
 from app.workflow.state import ReportState
 
@@ -57,15 +59,21 @@ def draft_narrative_with_llm(state: ReportState) -> ReportState:
 
 def generate_charts(state: ReportState) -> ReportState:
     chart_dir = Path(get_settings().storage_dir) / "charts" / state["job_id"]
-    chart_dir.mkdir(parents=True, exist_ok=True)
-    return {**state, "charts": []}
+    chart_paths = generate_report_charts(state["job_id"], state["profile"], chart_dir)
+    return {**state, "charts": chart_paths}
 
 
 def render_docx(state: ReportState) -> ReportState:
     reports_dir = Path(get_settings().storage_dir) / "reports"
-    reports_dir.mkdir(parents=True, exist_ok=True)
     output_path = reports_dir / f"{state['job_id']}.docx"
-    output_path.write_bytes(b"placeholder report")
+    render_report_docx(
+        template_path=state["template_path"],
+        output_path=output_path,
+        metrics=state["metrics"],
+        profile=state["profile"],
+        report_draft=state["report_draft"],
+        chart_paths=state["charts"],
+    )
     return {**state, "output_path": str(output_path)}
 
 
