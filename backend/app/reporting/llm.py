@@ -72,28 +72,63 @@ def build_prompt(metrics: Dict[str, Any], profile: Dict[str, Any], instructions:
         f"硬指标：{metrics}\n"
         f"交易画像：{profile}\n"
         f"用户补充说明：{instructions or '无'}\n"
-        "请输出面向管理者的经营摘要、补充观察和可执行建议。"
+        "请输出面向管理者的经营摘要、补充观察和可执行建议。\n"
+        "补充观察请聚焦对经营决策最有价值的点，例如：应收与实收之间的缺口及其主要成因"
+        "（抵扣 / 免费敞口）、优惠或会员渠道带来的收入流失、长停或异常停车、时段规律。"
+        "每条观察都要有具体数字支撑，不要泛泛而谈。"
     )
 
 
 def stub_report_draft(metrics: Dict[str, Any], profile: Dict[str, Any]) -> ReportDraft:
-    channel = profile["payment_channel_counts"][0]
     top_payment = metrics["top_payment_method"]
     rate = metrics["collection_rate"]
+    receivable = metrics["receivable_amount"]
+    collected = metrics["collected_amount"]
+    deduct = metrics["actual_deduct_amount"]
+    gap = round(receivable - collected, 2)
+    deduct_share = round(deduct / receivable * 100, 1) if receivable else 0.0
+
+    observations = []
+    # 核心洞察：应收与实收的缺口几乎全部由抵扣造成（收入流失主因）
+    if gap > 0:
+        observations.append(
+            f"应收 {receivable:.2f} 元、实收 {collected:.2f} 元，缺口 {gap:.2f} 元；"
+            f"其中实际抵扣 {deduct:.2f} 元，占应收 {deduct_share}%，是实收率仅 {rate}% 的主因，"
+            "属于可量化的收入让利敞口。"
+        )
+    # 优惠 / 会员敞口：非主流支付方式中靠抵扣的占比
+    methods = profile["payment_method_counts"]
+    discount_methods = [m for m in methods if m["name"] in {"会员积分", "优惠券"}]
+    if discount_methods:
+        detail = "、".join(f"{m['name']} {m['count']} 笔" for m in discount_methods)
+        total_discount = sum(m["count"] for m in discount_methods)
+        share = round(total_discount / metrics["total_transactions"] * 100, 1)
+        observations.append(
+            f"优惠类支付（{detail}）合计 {total_discount} 笔，占总交易 {share}%，"
+            "免费 / 优惠敞口较大，需评估其对实收的拉低作用。"
+        )
+    # 长停异常
+    long_stay = next(
+        (item["count"] for item in profile["anomaly_candidates"] if item["type"] == "long_stay_over_12h"),
+        0,
+    )
+    observations.append(
+        f"停车超过 12 小时的记录 {long_stay} 笔，最长 {profile['duration']['max_hours']} 小时，"
+        "存在长期占位或异常滞留，建议单独核查。"
+    )
+
     return ReportDraft(
         executive_summary=(
-            f"本期共 {metrics['total_transactions']} 笔交易，实收率 {rate}%，"
-            f"主要支付方式为{top_payment}。整体收入结构清晰，但抵扣规模需要持续跟踪。"
+            f"本期共 {metrics['total_transactions']} 笔交易，应收 {receivable:.2f} 元、"
+            f"实收 {collected:.2f} 元，实收率 {rate}%，主要支付方式为{top_payment}。"
+            f"实收率偏低主要源于 {deduct:.2f} 元抵扣，抵扣与免费敞口需重点跟踪。"
         ),
-        observations=[
-            f"{channel['name']}渠道交易 {channel['count']} 笔，是当前最主要的支付入口。",
-            f"实际抵扣总额 {metrics['actual_deduct_amount']} 元，应结合会员和优惠策略复盘抵扣效率。",
-            f"最长停车时长 {profile['duration']['max_hours']} 小时，长停车辆需要单独关注。",
-        ],
+        observations=observations,
         recommendations=[
-            "按支付方式和渠道建立周度监控，优先排查高抵扣低实收组合。",
-            "对长时间停车记录设置运营复核清单，减少异常占位和漏收风险。",
-            "将优惠券、会员积分的抵扣效果与复购指标绑定，避免只看交易笔数。",
+            "针对抵扣金额最大的支付方式（会员积分 / 优惠券）单列台账，按周复盘让利成本与回报。",
+            "对停车超过 12 小时的记录设置运营复核清单，减少异常占位和漏收风险。",
+            "将优惠券、会员积分的抵扣效果与复购、客流指标绑定，避免只看交易笔数。",
+            "建立应收—实收—抵扣的周度对账，把实收率作为核心经营指标持续监控。",
         ],
     )
 

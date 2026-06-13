@@ -1,5 +1,6 @@
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, Sequence, Tuple
 
 from docx import Document
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
@@ -16,17 +17,31 @@ def render_report_docx(
     metrics: Dict[str, Any],
     profile: Dict[str, Any],
     report_draft: Dict[str, Any],
-    chart_paths: List[str],
+    chart_paths: Dict[str, str],
 ) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     document = Document(template_path)
     document._body.clear_content()
+    drop_unreferenced_images(document)
     configure_document_styles(document)
 
     document.add_heading("停车明细分析报告", level=1)
     document.add_paragraph(report_draft["executive_summary"])
 
-    document.add_heading("一、核心指标", level=2)
+    document.add_heading("报告信息", level=2)
+    period = profile.get("period") or {}
+    period_text = f"{period.get('start') or '—'} 至 {period.get('end') or '—'}"
+    add_kv_table(
+        document,
+        ["项目", "内容"],
+        [
+            ("数据周期", period_text),
+            ("生成时间", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        ],
+        (2.2, 3.9),
+    )
+
+    document.add_heading("一、关键指标（硬性数字）", level=2)
     metric_rows = [
         ("总交易笔数", f"{metrics['total_transactions']} 笔"),
         ("应收总金额", f"{metrics['receivable_amount']:.2f} 元"),
@@ -37,11 +52,7 @@ def render_report_docx(
     ]
     add_kv_table(document, ["指标", "结果"], metric_rows, (2.2, 3.9))
 
-    document.add_heading("二、交易画像", level=2)
-    document.add_paragraph(
-        f"平均停车时长 {profile['duration']['average_hours']} 小时，"
-        f"最长停车时长 {profile['duration']['max_hours']} 小时。"
-    )
+    document.add_heading("二、支付方式与渠道", level=2)
     document.add_heading("支付渠道", level=3)
     add_kv_table(
         document,
@@ -56,29 +67,51 @@ def render_report_docx(
         [(item["name"], f"{item['count']} 笔") for item in profile["payment_method_counts"]],
         (3.0, 3.1),
     )
-    document.add_heading("停车时长分布", level=3)
+    add_chart(document, chart_paths.get("payment_methods"))
+
+    document.add_heading("三、停车时长分析", level=2)
+    document.add_paragraph(
+        f"平均停车时长 {profile['duration']['average_hours']} 小时，"
+        f"最长停车时长 {profile['duration']['max_hours']} 小时。"
+    )
     add_kv_table(
         document,
         ["时长区间（小时）", "交易笔数"],
         [(item["range"], f"{item['count']} 笔") for item in profile["duration"]["bins"]],
         (3.0, 3.1),
     )
-    for chart_path in chart_paths:
-        paragraph = document.add_paragraph()
-        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = paragraph.add_run()
-        run.add_picture(chart_path, width=Inches(5.5))
+    add_chart(document, chart_paths.get("duration_bins"))
+    add_chart(document, chart_paths.get("entry_hours"))
+    add_chart(document, chart_paths.get("charge_hours"))
 
-    document.add_heading("三、补充观察", level=2)
+    document.add_heading("四、补充观察", level=2)
     for observation in report_draft["observations"]:
         add_paragraph_with_optional_style(document, observation, "List Bullet", "· ")
 
-    document.add_heading("四、管理建议", level=2)
+    document.add_heading("五、结论与建议", level=2)
     for index, recommendation in enumerate(report_draft["recommendations"], start=1):
         add_paragraph_with_optional_style(document, recommendation, "List Number", f"{index}. ")
 
     document.save(output_path)
     return output_path
+
+
+def drop_unreferenced_images(document: Document) -> None:
+    # clear_content 清空正文后，模板自带的占位图会成为孤儿关系，
+    # 这里显式删除，避免示例占位图残留在最终包内。
+    part = document.part
+    for rel_id, rel in list(part.rels.items()):
+        if "image" in rel.reltype:
+            part.drop_rel(rel_id)
+
+
+def add_chart(document: Document, chart_path: str) -> None:
+    if not chart_path:
+        return
+    paragraph = document.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = paragraph.add_run()
+    run.add_picture(chart_path, width=Inches(5.5))
 
 
 def configure_document_styles(document: Document) -> None:

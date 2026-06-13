@@ -58,6 +58,7 @@ def profile_transactions(df: pd.DataFrame) -> Dict[str, Any]:
     profiled["停车时长(小时)"] = duration_hours
 
     return {
+        "period": _period(profiled),
         "payment_method_counts": _value_counts(profiled, "支付方式"),
         "payment_channel_counts": _value_counts(profiled, "支付渠道"),
         "duration": {
@@ -65,8 +66,27 @@ def profile_transactions(df: pd.DataFrame) -> Dict[str, Any]:
             "max_hours": round(float(duration_hours.max()), 2),
             "bins": _duration_bins(duration_hours),
         },
+        "entry_hour_counts": _hour_counts(profiled["进车时间"]),
+        "charge_hour_counts": _hour_counts(profiled["收费时间"]),
         "anomaly_candidates": _anomaly_candidates(profiled),
     }
+
+
+def _period(df: pd.DataFrame) -> Dict[str, str]:
+    charged = df["收费时间"].dropna()
+    if charged.empty:
+        return {"start": "", "end": ""}
+    return {
+        "start": charged.min().strftime("%Y-%m-%d"),
+        "end": charged.max().strftime("%Y-%m-%d"),
+    }
+
+
+def _hour_counts(timestamps: pd.Series) -> List[Dict[str, Any]]:
+    # 模板要求：早上 6 点到晚上 8 点，1 小时单位
+    hours = range(6, 20)
+    counts = timestamps.dropna().dt.hour.value_counts()
+    return [{"hour": hour, "count": int(counts.get(hour, 0))} for hour in hours]
 
 
 def _value_counts(df: pd.DataFrame, column: str) -> List[Dict[str, Any]]:

@@ -26,11 +26,13 @@ def configure_chart_fonts() -> None:
     plt.rcParams["axes.unicode_minus"] = False
 
 
-def generate_report_charts(job_id: str, profile: Dict[str, Any], charts_dir: Path) -> List[str]:
+def generate_report_charts(job_id: str, profile: Dict[str, Any], charts_dir: Path) -> Dict[str, str]:
     configure_chart_fonts()
     charts_dir.mkdir(parents=True, exist_ok=True)
     payment_chart = charts_dir / f"{job_id}-payment-methods.png"
     duration_chart = charts_dir / f"{job_id}-duration-bins.png"
+    entry_chart = charts_dir / f"{job_id}-entry-hours.png"
+    charge_chart = charts_dir / f"{job_id}-charge-hours.png"
 
     _bar_chart(
         output_path=payment_chart,
@@ -46,7 +48,26 @@ def generate_report_charts(job_id: str, profile: Dict[str, Any], charts_dir: Pat
         title="停车时长分布",
         ylabel="交易笔数",
     )
-    return [str(payment_chart), str(duration_chart)]
+    _bar_chart(
+        output_path=entry_chart,
+        labels=[f"{item['hour']:02d}" for item in profile["entry_hour_counts"]],
+        values=[item["count"] for item in profile["entry_hour_counts"]],
+        title="每日入场时间分布",
+        ylabel="入场车辆数",
+    )
+    _bar_chart(
+        output_path=charge_chart,
+        labels=[f"{item['hour']:02d}" for item in profile["charge_hour_counts"]],
+        values=[item["count"] for item in profile["charge_hour_counts"]],
+        title="每日收费时间分布",
+        ylabel="收费笔数",
+    )
+    return {
+        "payment_methods": str(payment_chart),
+        "duration_bins": str(duration_chart),
+        "entry_hours": str(entry_chart),
+        "charge_hours": str(charge_chart),
+    }
 
 
 def _bar_chart(output_path: Path, labels: List[str], values: List[int], title: str, ylabel: str) -> None:
