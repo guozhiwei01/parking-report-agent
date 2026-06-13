@@ -94,17 +94,17 @@
 
 ## 7. LLM 报告规划和文字生成
 
-- [ ] 接入 Qwen OpenAI-compatible API。
-- [ ] 使用 LangChain prompt 和结构化输出。
-- [ ] 支持 LangSmith tracing。
-- [ ] 没有 key 时提供 fake/stub LLM。
-- [ ] 校验 LLM 输出不能覆盖硬指标。
+- [x] 接入 Qwen OpenAI-compatible API。
+- [x] 使用 LangChain prompt 和结构化输出。
+- [x] 支持 LangSmith tracing。
+- [x] 没有 key 时提供 fake/stub LLM。
+- [x] 校验 LLM 输出不能覆盖硬指标。
 
 验收：
 
-- [ ] LLM 调用有 JSON 日志。
-- [ ] 输出包含补充观察和建议。
-- [ ] 本地无 key 时测试仍可跑。
+- [x] LLM 调用有 JSON 日志。
+- [x] 输出包含补充观察和建议。
+- [x] 本地无 key 时测试仍可跑。
 
 建议提交：`Add LLM report planning`
 

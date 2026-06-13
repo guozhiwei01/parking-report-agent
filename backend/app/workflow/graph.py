@@ -5,6 +5,7 @@ from langgraph.graph import END, StateGraph
 
 from app.core.config import get_settings
 from app.reporting.analyzer import analyze_transactions
+from app.reporting.llm import generate_report_draft
 from app.services.logging import log_event
 from app.workflow.state import ReportState
 
@@ -41,11 +42,17 @@ def profile_transactions(state: ReportState) -> ReportState:
 
 
 def plan_report_with_llm(state: ReportState) -> ReportState:
-    return {**state, "plan": {"sections": ["经营概览", "支付结构", "管理建议"]}}
+    return {**state, "plan": {"sections": ["经营概览", "支付结构", "停车时长", "管理建议"]}}
 
 
 def draft_narrative_with_llm(state: ReportState) -> ReportState:
-    return {**state, "narrative": {"summary": "报告生成流程已跑通，后续接入真实分析。"}}
+    draft = generate_report_draft(
+        job_id=state["job_id"],
+        metrics=state["metrics"],
+        profile=state["profile"],
+        instructions=state.get("instructions") or "",
+    )
+    return {**state, "report_draft": draft.model_dump()}
 
 
 def generate_charts(state: ReportState) -> ReportState:

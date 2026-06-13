@@ -13,4 +13,5 @@ class ReportState(TypedDict, total=False):
     profile: Dict[str, Any]
     plan: Dict[str, Any]
     narrative: Dict[str, Any]
+    report_draft: Dict[str, Any]
     charts: List[str]
