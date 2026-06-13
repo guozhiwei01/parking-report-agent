@@ -10,6 +10,11 @@
   box-sizing: border-box;
 }
 
+/* 元素显式设置 display 会覆盖 [hidden]，这里强制让 hidden 始终生效 */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
 }
