@@ -43,8 +43,40 @@ def profile_transactions(state: ReportState) -> ReportState:
     return state
 
 
+def decide_profile_branch(state: ReportState) -> str:
+    metrics = state["metrics"]
+    profile = state["profile"]
+    receivable = metrics["receivable_amount"] or 1
+    deduct_ratio = metrics["actual_deduct_amount"] / receivable
+    has_long_stay = any(
+        item["type"] == "long_stay_over_12h" and item["count"] > 0
+        for item in profile["anomaly_candidates"]
+    )
+
+    if deduct_ratio >= 0.3 or has_long_stay:
+        return "enrich_risk_findings"
+    return "plan_report_with_llm"
+
+
+def enrich_risk_findings(state: ReportState) -> ReportState:
+    metrics = state["metrics"]
+    profile = state["profile"]
+    flags = []
+    receivable = metrics["receivable_amount"] or 1
+    deduct_ratio = metrics["actual_deduct_amount"] / receivable
+    if deduct_ratio >= 0.3:
+        flags.append("high_deduct_ratio")
+    for item in profile["anomaly_candidates"]:
+        if item["type"] == "long_stay_over_12h" and item["count"] > 0:
+            flags.append("long_stay_records")
+    return {**state, "risk_flags": flags}
+
+
 def plan_report_with_llm(state: ReportState) -> ReportState:
-    return {**state, "plan": {"sections": ["经营概览", "支付结构", "停车时长", "管理建议"]}}
+    sections = ["经营概览", "支付结构", "停车时长", "管理建议"]
+    if state.get("risk_flags"):
+        sections.insert(3, "风险提示")
+    return {**state, "plan": {"sections": sections, "risk_flags": state.get("risk_flags", [])}}
 
 
 def draft_narrative_with_llm(state: ReportState) -> ReportState:
@@ -86,6 +118,7 @@ def build_report_graph():
     graph.add_node("load_inputs", logged_node("load_inputs", load_inputs))
     graph.add_node("compute_hard_metrics", logged_node("compute_hard_metrics", compute_hard_metrics))
     graph.add_node("profile_transactions", logged_node("profile_transactions", profile_transactions))
+    graph.add_node("enrich_risk_findings", logged_node("enrich_risk_findings", enrich_risk_findings))
     graph.add_node("plan_report_with_llm", logged_node("plan_report_with_llm", plan_report_with_llm))
     graph.add_node("draft_narrative_with_llm", logged_node("draft_narrative_with_llm", draft_narrative_with_llm))
     graph.add_node("generate_charts", logged_node("generate_charts", generate_charts))
@@ -95,7 +128,15 @@ def build_report_graph():
     graph.set_entry_point("load_inputs")
     graph.add_edge("load_inputs", "compute_hard_metrics")
     graph.add_edge("compute_hard_metrics", "profile_transactions")
-    graph.add_edge("profile_transactions", "plan_report_with_llm")
+    graph.add_conditional_edges(
+        "profile_transactions",
+        decide_profile_branch,
+        {
+            "enrich_risk_findings": "enrich_risk_findings",
+            "plan_report_with_llm": "plan_report_with_llm",
+        },
+    )
+    graph.add_edge("enrich_risk_findings", "plan_report_with_llm")
     graph.add_edge("plan_report_with_llm", "draft_narrative_with_llm")
     graph.add_edge("draft_narrative_with_llm", "generate_charts")
     graph.add_edge("generate_charts", "render_docx")

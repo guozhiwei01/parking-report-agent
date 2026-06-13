@@ -15,3 +15,5 @@ class ReportState(TypedDict, total=False):
     narrative: Dict[str, Any]
     report_draft: Dict[str, Any]
     charts: List[str]
+    risk_flags: List[str]
+    retry_attempt: int

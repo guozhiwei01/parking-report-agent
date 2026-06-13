@@ -8,6 +8,7 @@
 load_inputs
   -> compute_hard_metrics
   -> profile_transactions
+  -> enrich_risk_findings（按数据条件可选）
   -> plan_report_with_llm
   -> draft_narrative_with_llm
   -> generate_charts
@@ -20,6 +21,7 @@ load_inputs
 规则：
 
 - 确定性节点只负责计算事实和候选信号。
+- `profile_transactions` 之后必须保留至少一个条件分支，用数据画像决定是否进入风险补充节点。
 - LLM 节点负责选择重点、组织表达、生成报告文字。
 - LLM 不能计算或覆盖六个硬指标。
 - Graph state 要能序列化、能调试。

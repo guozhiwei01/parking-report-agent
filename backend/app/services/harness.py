@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from app.db.models import ReportJob
 from app.db.session import SessionLocal
@@ -8,6 +9,8 @@ from app.workflow.state import ReportState
 
 
 class GenerationHarness:
+    max_attempts = 2
+
     def __init__(self) -> None:
         self.graph = build_report_graph()
 
@@ -24,7 +27,7 @@ class GenerationHarness:
                 db.commit()
                 log_event("job.running", job_id=job.id)
 
-                final_state = self.graph.invoke(self._initial_state(job))
+                final_state = self._invoke_with_retry(job)
                 job.output_path = final_state["output_path"]
                 job.status = "completed"
                 job.completed_at = datetime.now(timezone.utc)
@@ -47,3 +50,19 @@ class GenerationHarness:
             "data_path": job.data_path,
             "instructions": job.instructions,
         }
+
+    def _invoke_with_retry(self, job: ReportJob) -> ReportState:
+        last_error: Optional[Exception] = None
+        for attempt in range(1, self.max_attempts + 1):
+            try:
+                log_event("job.graph_attempt.started", job_id=job.id, attempt=attempt)
+                state = self.graph.invoke({**self._initial_state(job), "retry_attempt": attempt})
+                log_event("job.graph_attempt.completed", job_id=job.id, attempt=attempt)
+                return state
+            except Exception as exc:
+                last_error = exc
+                log_event("job.graph_attempt.failed", job_id=job.id, attempt=attempt, error=str(exc))
+                if attempt >= self.max_attempts:
+                    break
+                log_event("job.retry_scheduled", job_id=job.id, next_attempt=attempt + 1)
+        raise RuntimeError(f"generation failed after {self.max_attempts} attempts: {last_error}")

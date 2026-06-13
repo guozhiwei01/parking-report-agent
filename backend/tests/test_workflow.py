@@ -23,4 +23,6 @@ def test_report_graph_runs_with_fake_nodes(tmp_path, monkeypatch) -> None:
 
     assert final_state["output_path"].endswith("job-1.docx")
     assert Path(final_state["output_path"]).exists()
+    assert final_state["risk_flags"] == ["high_deduct_ratio", "long_stay_records"]
+    assert "风险提示" in final_state["plan"]["sections"]
     get_settings.cache_clear()
