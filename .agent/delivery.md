@@ -3,7 +3,7 @@
 最终仓库需要包含：
 
 - 后端源码。
-- Vue3 前端源码。
+- 原生 HTML/JS 前端源码。
 - 数据库迁移。
 - Dockerfile 和 docker-compose.yml。
 - README.md。

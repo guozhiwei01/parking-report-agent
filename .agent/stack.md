@@ -3,7 +3,7 @@
 除非用户明确改变方向，否则使用以下技术栈：
 
 - FastAPI：HTTP API。
-- Vue3 / Vite / TypeScript：极简上传、状态查询、下载前端。
+- 原生 HTML / JavaScript / CSS：极简上传、状态查询、下载前端。
 - PostgreSQL：持久化任务状态。
 - SQLAlchemy / Alembic：数据库访问和迁移。
 - LangGraph：报表生成 Agent 的工作流运行时。
@@ -14,7 +14,6 @@
 - matplotlib：生成图表 PNG。
 - python-docx：生成 DOCX 报告。
 - pytest / httpx：测试。
-- Vitest 可选，仅在前端逻辑复杂时使用。
 - Docker Compose：一键启动。
 
 不要默认加入 React、Next.js、Celery、Redis、pgvector/RAG 或多智能体基础设施。

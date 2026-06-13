@@ -6,7 +6,7 @@
 
 - `.agent/project.md`：项目目标和评分重点。
 - `.agent/stack.md`：固定技术栈。
-- `.agent/frontend.md`：Vue3 前端边界和交互要求。
+- `.agent/frontend.md`：原生 HTML/JS 前端边界和交互要求。
 - `.agent/api.md`：前后端 API 契约和任务状态。
 - `.agent/database.md`：数据库模型和迁移约束。
 - `.agent/workflow.md`：LangGraph 和 Agent 工作流约束。
@@ -23,6 +23,6 @@
 - 不要提交真实 API key、数据库密码、`.env` 或包含敏感信息的日志。
 - 报表硬指标必须由代码确定性计算，不能交给 LLM。
 - Agent 栈使用 LangGraph / LangChain，LangSmith 可配置启用，不要改成自研 LLM runner。
-- 前端使用 Vue3，不要改回服务端模板或换成 React。
+- 前端使用原生 HTML、简单 JavaScript 和原生 CSS，不要引入 Vue/React。
 - 项目范围控制在 6 小时面试作业能完成的复杂度。
 - 每完成一个完整原子功能就提交，不要堆成一个巨大的最终提交。

@@ -222,7 +222,7 @@ __marimo__/
 *.swp
 *.swo
 
-# Node / Vue / Vite
+# Node / frontend build artifacts
 node_modules/
 frontend/node_modules/
 frontend/dist/

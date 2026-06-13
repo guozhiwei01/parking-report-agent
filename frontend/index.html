@@ -4,9 +4,52 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>停车报表生成</title>
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <main class="page">
+      <section class="panel">
+        <p class="eyebrow">Parking Report Agent</p>
+        <h1>停车明细分析报告生成</h1>
+
+        <form id="job-form" class="form">
+          <label>
+            <span>报告模板 DOCX</span>
+            <input id="template-file" type="file" accept=".docx" required />
+          </label>
+
+          <label>
+            <span>交易明细 CSV</span>
+            <input id="data-file" type="file" accept=".csv" required />
+          </label>
+
+          <label>
+            <span>补充说明</span>
+            <textarea id="instructions" rows="4" placeholder="可选"></textarea>
+          </label>
+
+          <button id="submit-button" type="submit">生成报告</button>
+        </form>
+
+        <section id="status-panel" class="status" hidden>
+          <div>
+            <span>任务</span>
+            <strong id="job-id"></strong>
+          </div>
+          <div>
+            <span>状态</span>
+            <strong id="job-status"></strong>
+          </div>
+          <p id="job-error" class="error" hidden></p>
+          <a id="download-link" class="download" hidden>下载 DOCX</a>
+        </section>
+
+        <form id="lookup-form" class="lookup">
+          <input id="lookup-job-id" placeholder="输入 job id 恢复状态" />
+          <button type="submit">查询</button>
+        </form>
+      </section>
+    </main>
+    <script src="/app.js"></script>
   </body>
 </html>

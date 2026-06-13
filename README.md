@@ -8,7 +8,7 @@
 - Agent：LangGraph 工作流、LangChain 模型封装、LangSmith 可选 tracing
 - 模型：Qwen OpenAI-compatible API，默认模型 `qwen3.7-plus`
 - 数据和报表：pandas、matplotlib、python-docx
-- 前端：Vue3、Vite、TypeScript、原生 CSS
+- 前端：原生 HTML、简单 JavaScript、原生 CSS
 - 测试：pytest、httpx
 - 交付：Docker Compose
 
@@ -84,17 +84,11 @@ PYTHONPATH=backend .venv/bin/alembic -c backend/alembic.ini upgrade head
 PYTHONPATH=backend .venv/bin/uvicorn app.main:app --reload
 ```
 
-前端：
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
+前端是静态 HTML 页面，不需要 Node 构建。开发时可以直接用任意静态服务器打开 `frontend/index.html`，或通过 Docker Compose 访问 Nginx 托管页面。
 
 访问：
 
-- 前端开发页：http://localhost:5173
+- 前端页面：http://localhost:8080
 - 后端 health：http://localhost:8000/health
 
 ## Docker Compose
@@ -121,7 +115,7 @@ Compose 会启动：
 
 ```bash
 PYTHONPATH=backend .venv/bin/pytest backend/tests
-cd frontend && npm run build && npm audit --omit=dev
+python3 -m py_compile backend/app/main.py
 ```
 
 API 级测试覆盖了 submit -> status -> download，并 mock generation harness，不依赖真实 LLM。

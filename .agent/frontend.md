@@ -1,12 +1,11 @@
 # 前端策略
 
-前端使用 Vue3，不使用服务端模板。
+前端使用原生 HTML、简单 JavaScript 和原生 CSS，不使用 Vue、React 或其他前端框架。
 
 推荐技术栈：
 
-- Vue3
-- Vite
-- TypeScript
+- HTML
+- JavaScript
 - 原生 CSS
 
 页面范围控制在一个最小可用应用：
@@ -31,7 +30,7 @@ GET /api/jobs/{job_id}/download
 规则：
 
 - 不引入复杂 UI 组件库，除非用户明确要求。
-- 不引入 Pinia，除非状态复杂到确实需要。
+- 不引入前端构建工具，除非后续功能复杂到确实需要。
 - 不做认证、权限、历史任务列表或在线 DOCX 预览。
 - 保持界面朴素、清楚、可用，时间优先留给 Agent 和报表生成。
-- Docker Compose 中前端可以独立构建，也可以由后端服务静态托管构建产物。
+- Docker Compose 中前端使用 Nginx 托管静态文件；也可以由后端服务静态托管。

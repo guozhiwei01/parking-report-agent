@@ -6,7 +6,7 @@
 
 - [x] 创建后端 Python 包结构。
 - [x] 添加后端依赖文件。
-- [x] 创建 Vue3 / Vite / TypeScript 前端。
+- [x] 创建原生 HTML / JavaScript / CSS 前端。
 - [x] 添加 `.env.example`。
 
 验收：
@@ -47,7 +47,7 @@
 
 建议提交：`Add job API lifecycle`
 
-## 4. Vue3 前端
+## 4. 原生前端
 
 - [x] 实现上传表单。
 - [x] 实现可选 instructions 输入框。
@@ -61,7 +61,7 @@
 - [x] 刷新后可通过 job id 恢复状态。
 - [x] 页面保持简单可用。
 
-建议提交：`Add Vue job submission UI`
+建议提交：`Add simple job submission UI`
 
 ## 5. LangGraph 工作流骨架
 
