@@ -330,9 +330,9 @@
         <span class="pill">recommendations[]</span>
         <ul style="font-size:13.3px">
           <li>Prompt 把硬指标 + 画像作为 <b>grounded context</b> 传入，明确"不得重算/覆盖六个硬指标"。</li>
-          <li><code>with_structured_output(ReportDraft)</code> 强制 schema，杜绝自由文本跑偏。</li>
+          <li><code>with_structured_output(ReportDraft)</code> + prompt 内<b>显式列出键名</b>，强制结构、杜绝跑偏。</li>
           <li>补充观察被引导聚焦：<b>收入流失</b>（应收-实收缺口≈抵扣）、优惠/免费敞口、长停异常、时段规律。</li>
-          <li>无 Qwen key → <b>stub_report_draft</b>：同样基于真实数字生成，保证离线可评审、可测试。</li>
+          <li>实测模型 <code>qwen3.6-flash</code>（DashScope OpenAI 兼容端点），~32s/次；无 Qwen key 时降级 <b>stub_report_draft</b>，同样基于真实数字、离线可评审。</li>
         </ul>
         <div class="callout" style="margin:8px 0 0">
           关键保证：LLM 的输出只进入"叙述/观察/建议"段落；<b>表格里的六个硬数字始终来自 analyzer</b>，二者在 renderer 中分开写入。
@@ -388,6 +388,22 @@
         <tr><td>LLM 调用</td><td><code>llm.call.completed / llm.call.failed</code></td><td><b>model, prompt, response, latency_ms</b></td></tr>
       </table>
       <div class="callout">题目明确要求"记录每次 LLM 调用的 prompt/response/model/latency" → 由 <code>llm.call.*</code> 事件满足，便于事后调试 Agent 行为。</div>
+      <div class="two" style="margin-top:16px">
+        <div class="card" style="border-color:var(--teal-line)">
+          <h4 style="margin-top:0;color:var(--teal)">① 结构化 JSON 日志（已留档）</h4>
+          <p style="font-size:13px;margin:0">仓库 <code>sample_logs/</code> 收录真实任务日志：<br/>
+          · <code>job-run.jsonl</code> — 成功全生命周期（含 LLM prompt/response/latency）<br/>
+          · <code>job-run-failed.jsonl</code> — 故意缺列触发失败，日志定位到 <code>compute_hard_metrics</code> 节点 + 重试 1→2 + <code>job.failed</code><br/>
+          面试官无需运行即可检查。</p>
+        </div>
+        <div class="card" style="border-color:var(--llm)">
+          <h4 style="margin-top:0;color:var(--llm)">② LangSmith Tracing（已打通）</h4>
+          <p style="font-size:13px;margin:0"><code>LANGCHAIN_TRACING_V2=true</code> + key 时自动上报。
+          <code>sample_logs/langsmith-trace.json</code> 为真实导出的 run 树：根 <code>LangGraph</code> 下各确定性节点，
+          <b>仅 <code>draft_narrative_with_llm</code> 挂一个 <code>ChatOpenAI</code>（Qwen）调用</b>，
+          可视化印证"确定性 vs LLM"边界与条件分支命中。</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -402,6 +418,8 @@
         <tr><td>非平凡决策</td><td>profile 后条件分支</td><td>抵扣占比/长停驱动是否补风险节，进而影响章节与叙述——证明 Agent 在"决定写什么"。</td></tr>
         <tr><td>硬指标</td><td>pandas 确定性计算 + 不硬编码</td><td>同输入必同输出；LLM 仅在 grounded 事实上叙述，schema 强约束防跑偏。</td></tr>
         <tr><td>LLM 可降级</td><td>Qwen ↔ stub 双路</td><td>无 key 也能端到端跑通、可测试、可评审；CI 不依赖外部 API。</td></tr>
+        <tr><td>模型选型</td><td><code>qwen3.6-flash</code>（默认）</td><td>对比 <code>qwen3.7-plus</code> 延迟 ~32s vs ~80s，叙述质量相当；交互体验更好。模型经 env 可换，不改代码。</td></tr>
+        <tr><td>结构化输出鲁棒性</td><td>显式键名 + json 模式适配</td><td>DashScope 的 json_object 模式不强制 schema 字段名，故在 prompt 内显式列出键，避免模型自创字段导致校验失败。</td></tr>
         <tr><td>模板策略</td><td>清空重建 + 删占位图 + 复用样式</td><td>章节对齐官方模板但内容全由数据驱动；模板无关性较好。</td></tr>
         <tr><td>测试</td><td>API 级 submit→status→download（mock harness）+ 硬指标/渲染单测</td><td>满足最低要求，风险驱动 TDD 优先覆盖确定性计算与生命周期，不追求穷尽覆盖。</td></tr>
         <tr><td>交付</td><td>docker-compose 一键起</td><td>backend 启动先 alembic upgrade head 再 uvicorn；db 健康检查后再起后端。</td></tr>
@@ -440,6 +458,18 @@
       <summary>Q4. 没有 LLM key 时怎么办？stub 会不会"假数据"？</summary>
       <div class="ans">
         stub_report_draft 同样读真实 metrics/profile 生成摘要、观察、建议（如"应收-实收缺口≈抵扣、占应收 45.6%"都是算出来的），只是不调外部模型。好处：离线可端到端、CI 不依赖网络、评审无需配 key。接 Qwen 时走 <code>ChatOpenAI.with_structured_output</code>，OpenAI 兼容接口，换 base_url/model 即可。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q4b. 接真实 Qwen 时踩了什么坑？怎么定位修复的？（可观测性实战）</summary>
+      <div class="ans">
+        从 stub 切到真实 Qwen 暴露了两个只有真调用才会出现的问题，<b>全靠结构化日志的 <code>llm.call.failed</code> 事件定位</b>：
+        <ul>
+          <li><b>① DashScope 要求 prompt 含 "json" 字面词</b>：用 json 模式时报 <code>400 'messages' must contain the word 'json'</code>。日志里完整记下了 prompt 与错误 → 在 prompt 显式声明"以 JSON 输出"即解。</li>
+          <li><b>② json_object 模式不强制字段名</b>：模型自创了 <code>key_observations</code> 等键，pydantic <code>extra_forbidden</code> 校验失败。日志显示了模型实际返回结构 → 在 prompt 内<b>显式列出确切键名</b>（executive_summary / observations / recommendations）后稳定通过。</li>
+        </ul>
+        这正是"可调试、grounded 的 Agent"的价值：失败时 <code>llm.call.failed</code> 带 model/prompt/error，<b>Harness 的有限重试也在日志里可见</b>，无需复现即可定位。两次修复均有提交记录。
       </div>
     </details>
 
