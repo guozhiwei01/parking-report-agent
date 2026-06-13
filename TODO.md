@@ -49,17 +49,17 @@
 
 ## 4. Vue3 前端
 
-- [ ] 实现上传表单。
-- [ ] 实现可选 instructions 输入框。
-- [ ] 实现 job 状态展示。
-- [ ] 实现 queued / running 轮询。
-- [ ] 实现 completed 下载按钮和 failed 错误展示。
+- [x] 实现上传表单。
+- [x] 实现可选 instructions 输入框。
+- [x] 实现 job 状态展示。
+- [x] 实现 queued / running 轮询。
+- [x] 实现 completed 下载按钮和 failed 错误展示。
 
 验收：
 
-- [ ] 前端可调用后端 API。
-- [ ] 刷新后可通过 job id 恢复状态。
-- [ ] 页面保持简单可用。
+- [x] 前端可调用后端 API。
+- [x] 刷新后可通过 job id 恢复状态。
+- [x] 页面保持简单可用。
 
 建议提交：`Add Vue job submission UI`
 
