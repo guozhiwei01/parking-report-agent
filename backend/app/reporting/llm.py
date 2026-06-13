@@ -72,7 +72,13 @@ def build_prompt(metrics: Dict[str, Any], profile: Dict[str, Any], instructions:
         f"硬指标：{metrics}\n"
         f"交易画像：{profile}\n"
         f"用户补充说明：{instructions or '无'}\n"
-        "请输出面向管理者的经营摘要、补充观察和可执行建议。\n"
+        "请严格按以下 JSON 对象输出，键名必须完全一致，不要新增、改名或嵌套其它键：\n"
+        '{\n'
+        '  "executive_summary": "面向管理者的一段经营摘要（字符串）",\n'
+        '  "observations": ["补充观察1", "补充观察2", "..."],\n'
+        '  "recommendations": ["可执行建议1", "可执行建议2", "..."]\n'
+        '}\n'
+        "observations 与 recommendations 都是字符串数组，每个元素是一句话，不要用对象。\n"
         "补充观察请聚焦对经营决策最有价值的点，例如：应收与实收之间的缺口及其主要成因"
         "（抵扣 / 免费敞口）、优惠或会员渠道带来的收入流失、长停或异常停车、时段规律。"
         "每条观察都要有具体数字支撑，不要泛泛而谈。"
