@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     qwen_api_key: str = ""
     qwen_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    qwen_model: str = "qwen3.7-plus"
+    qwen_model: str = "qwen3.6-flash"
 
     langchain_tracing_v2: bool = False
     langchain_api_key: str = ""

@@ -6,7 +6,7 @@
 
 - 后端：FastAPI、SQLAlchemy、Alembic、PostgreSQL
 - Agent：LangGraph 工作流、LangChain 模型封装、LangSmith 可选 tracing
-- 模型：Qwen OpenAI-compatible API，默认模型 `qwen3.7-plus`
+- 模型：Qwen OpenAI-compatible API，默认模型 `qwen3.6-flash`
 - 数据和报表：pandas、matplotlib、python-docx
 - 前端：原生 HTML、简单 JavaScript、原生 CSS
 - 测试：pytest、httpx
@@ -70,7 +70,7 @@ Qwen 和 LangSmith 都是可选：
 ```text
 QWEN_API_KEY=replace-me
 QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-QWEN_MODEL=qwen3.7-plus
+QWEN_MODEL=qwen3.6-flash
 LANGCHAIN_TRACING_V2=false
 LANGCHAIN_API_KEY=
 LANGCHAIN_PROJECT=parking-report-agent

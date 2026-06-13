@@ -27,7 +27,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-parking_report_agent}
       QWEN_API_KEY: ${QWEN_API_KEY:-}
       QWEN_BASE_URL: ${QWEN_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
-      QWEN_MODEL: ${QWEN_MODEL:-qwen3.7-plus}
+      QWEN_MODEL: ${QWEN_MODEL:-qwen3.6-flash}
       LANGCHAIN_TRACING_V2: ${LANGCHAIN_TRACING_V2:-false}
       LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY:-}
       LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT:-parking-report-agent}
