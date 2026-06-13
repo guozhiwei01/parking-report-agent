@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>停车明细分析报告 Agent · 实施方案与流程图</title>
+<style>
+  :root {
+    --teal: #146c5f;
+    --teal-soft: #dceadf;
+    --teal-line: #7aa79c;
+    --ink: #1f2a2e;
+    --muted: #5d6b70;
+    --bg: #f5f7f6;
+    --card: #ffffff;
+    --border: #d8dee4;
+    --warn: #b5651d;
+    --code-bg: #0f2a26;
+    --det: #146c5f;
+    --llm: #6a4cae;
+    --io: #1d6fb8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #0f3d36, var(--teal));
+    color: #fff;
+    padding: 36px 40px 30px;
+  }
+  header h1 { margin: 0 0 8px; font-size: 26px; }
+  header p { margin: 4px 0; opacity: .9; font-size: 14px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px 80px; }
+  section { margin-top: 44px; }
+  h2 {
+    font-size: 21px;
+    border-left: 5px solid var(--teal);
+    padding-left: 12px;
+    margin-bottom: 6px;
+  }
+  h2 .num { color: var(--teal); font-weight: 700; }
+  .lead { color: var(--muted); margin: 4px 0 20px; font-size: 14.5px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  /* ---- legend ---- */
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 14px 0; font-size: 13px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .dot { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+  .dot.det { background: var(--det); }
+  .dot.llm { background: var(--llm); }
+  .dot.io  { background: var(--io); }
+  .dot.cond{ background: var(--warn); }
+  /* ---- flow boxes ---- */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .node {
+    width: 100%;
+    max-width: 560px;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #fff;
+    position: relative;
+  }
+  .node .t { font-weight: 600; font-size: 14.5px; }
+  .node .d { font-size: 12.5px; opacity: .92; margin-top: 2px; }
+  .node.det { background: var(--det); }
+  .node.llm { background: var(--llm); }
+  .node.io  { background: var(--io); }
+  .node.cond{ background: var(--warn); border-radius: 30px; max-width: 560px; }
+  .arrow { width: 2px; height: 22px; background: var(--teal-line); }
+  .arrow.small { height: 14px; }
+  .branch {
+    display: flex; gap: 28px; width: 100%; max-width: 760px; justify-content: center;
+  }
+  .branch .col { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .label-edge { font-size: 11.5px; color: var(--warn); font-weight: 600; margin: 4px 0; }
+  /* ---- arch grid ---- */
+  .arch { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .tier {
+    border: 1.5px dashed var(--teal-line);
+    border-radius: 12px;
+    padding: 14px 16px 16px;
+    background: #fbfdfc;
+    position: relative;
+  }
+  .tier + .tier-arrow { display: flex; justify-content: center; }
+  .tier h4 { margin: 0 0 10px; font-size: 13px; color: var(--teal); letter-spacing: .5px; text-transform: uppercase; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .box {
+    background: #fff; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 13px; font-size: 13px; flex: 1; min-width: 150px;
+  }
+  .box b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+  .box small { color: var(--muted); font-size: 12px; }
+  .varrow { text-align: center; color: var(--teal-line); font-size: 20px; line-height: 1; margin: 4px 0; }
+  /* ---- tables ---- */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 6px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--teal-soft); color: #0f3d36; font-weight: 600; }
+  td code, .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12.5px; }
+  td code { background: #eef2f1; padding: 1px 5px; border-radius: 4px; }
+  /* ---- state machine ---- */
+  .states { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .state {
+    padding: 9px 18px; border-radius: 24px; font-weight: 600; font-size: 14px; color: #fff;
+  }
+  .state.q { background: #8a93a6; }
+  .state.r { background: var(--io); }
+  .state.c { background: var(--teal); }
+  .state.f { background: #b23b3b; }
+  .to { color: var(--muted); font-size: 18px; }
+  /* ---- qa ---- */
+  details {
+    background: #fff; border: 1px solid var(--border); border-radius: 10px;
+    padding: 4px 18px; margin-bottom: 10px;
+  }
+  details summary {
+    cursor: pointer; font-weight: 600; padding: 12px 0; font-size: 14.5px; color: var(--ink);
+  }
+  details[open] summary { color: var(--teal); }
+  details .ans { padding: 0 0 14px; font-size: 13.8px; color: #2a3539; }
+  .ans ul { margin: 6px 0; padding-left: 20px; }
+  /* ---- callout ---- */
+  .callout {
+    border-left: 4px solid var(--teal); background: var(--teal-soft);
+    padding: 12px 16px; border-radius: 6px; font-size: 13.5px; margin: 14px 0;
+  }
+  .callout.warn { border-color: var(--warn); background: #fbf0e3; }
+  .pill { display:inline-block; background:#eef2f1; border:1px solid var(--border); border-radius:20px; padding:2px 10px; font-size:12px; margin:2px 4px 2px 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } .branch { flex-direction: column; } }
+  .foot { margin-top: 50px; color: var(--muted); font-size: 12.5px; text-align: center; }
+  code.path { color: var(--teal); }
+</style>
+</head>
+<body>
+<header>
+  <h1>停车明细分析报告 Agent · 实施方案</h1>
+  <p>Agentic Report Generation System — 技术探讨用流程图与设计说明</p>
+  <p>栈：FastAPI · LangGraph/LangChain · PostgreSQL · pandas/matplotlib/python-docx · Docker Compose</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 0 一句话 ============ -->
+  <section>
+    <div class="callout">
+      <b>一句话概括：</b>上传 CSV + DOCX 模板 → 异步生成 → 轮询状态 → 下载报告。
+      核心设计是<strong>确定性计算与 LLM 推理的清晰切分</strong>：六个硬指标 100% 由 pandas 代码算出、LLM 不可覆盖；
+      LangGraph 工作流带<strong>真实条件分支</strong>，Agent 据数据画像决定是否补充风险分析，再由 LLM 选择重点、组织叙述。
+    </div>
+    <div class="legend">
+      <span><i class="dot io"></i>I/O 节点（加载/落盘）</span>
+      <span><i class="dot det"></i>确定性节点（代码计算事实）</span>
+      <span><i class="dot cond"></i>条件分支（数据驱动）</span>
+      <span><i class="dot llm"></i>LLM 节点（推理/叙述）</span>
+    </div>
+  </section>
+
+  <!-- ============ 1 架构总览 ============ -->
+  <section>
+    <h2><span class="num">1.</span> 系统架构总览</h2>
+    <p class="lead">三层容器（docker-compose），前端 Nginx、后端 FastAPI、PostgreSQL；后端内部再分 API → 服务编排 → Agent 工作流 → 报表流水线。</p>
+    <div class="card arch">
+
+      <div class="tier">
+        <h4>① 前端 · Nginx :8080（原生 HTML/JS/CSS）</h4>
+        <div class="row">
+          <div class="box"><b>上传表单</b><small>template_file / data_file / instructions(可选)</small></div>
+          <div class="box"><b>状态轮询</b><small>每 1.5s 拉 GET /api/jobs/{id}，queued·running 时轮询，终态停止</small></div>
+          <div class="box"><b>localStorage</b><small>记住 lastJobId，刷新后自动恢复状态（满足"刷新正确显示进度"）</small></div>
+          <div class="box"><b>下载按钮</b><small>completed 时显示 download_url</small></div>
+        </div>
+      </div>
+      <div class="varrow">↓ &nbsp; HTTP / REST（multipart 上传 · JSON 状态）</div>
+
+      <div class="tier">
+        <h4>② API 层 · FastAPI :8000（app/api/jobs.py）</h4>
+        <div class="row">
+          <div class="box"><b>POST /api/jobs → 202</b><small>校验后缀(.docx/.csv)→建 job(queued)→流式存盘→BackgroundTasks 触发生成→立即返回</small></div>
+          <div class="box"><b>GET /api/jobs/{id}</b><small>返回 JobResponse（状态机查询）</small></div>
+          <div class="box"><b>GET /api/jobs/{id}/download</b><small>FileResponse；未完成→409，缺失→404</small></div>
+        </div>
+      </div>
+      <div class="varrow">↓ &nbsp; BackgroundTasks（不阻塞 HTTP 请求）</div>
+
+      <div class="tier">
+        <h4>③ 生成编排 · Generation Harness（app/services/harness.py）</h4>
+        <div class="row">
+          <div class="box"><b>job 状态机</b><small>running→completed/failed，写 started_at/completed_at/error_message</small></div>
+          <div class="box"><b>有限重试</b><small>max_attempts=2，每次 attempt/失败/重试都打 JSON 日志</small></div>
+          <div class="box"><b>构造 graph state</b><small>job_id·template_path·data_path·instructions·retry_attempt</small></div>
+          <div class="box"><b>结构化日志</b><small>job 生命周期全程 log_event(...) → stdout JSON</small></div>
+        </div>
+      </div>
+      <div class="varrow">↓ &nbsp; graph.invoke(state)</div>
+
+      <div class="tier">
+        <h4>④ Agent · LangGraph StateGraph（app/workflow/graph.py）→ 见第 3 节</h4>
+        <div class="row">
+          <div class="box det" style="color:#fff"><b>确定性流水线</b><small>analyzer 计算硬指标 + 画像；charts 出图；renderer 渲 DOCX</small></div>
+          <div class="box llm" style="color:#fff"><b>LLM 流水线</b><small>plan 选章节 · draft 写摘要/观察/建议（Qwen 或 stub）</small></div>
+        </div>
+      </div>
+      <div class="varrow">↕ &nbsp; SQLAlchemy / 文件存储</div>
+
+      <div class="tier">
+        <h4>⑤ 持久化</h4>
+        <div class="row">
+          <div class="box io" style="color:#fff"><b>PostgreSQL :55433</b><small>report_jobs 表（Alembic 迁移），job 状态与路径</small></div>
+          <div class="box"><b>文件存储卷</b><small>storage/uploads/{id}/ 原始文件 · storage/reports/{id}.docx · storage/charts/{id}/</small></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 2 异步生命周期 ============ -->
+  <section>
+    <h2><span class="num">2.</span> 异步任务生命周期与状态机</h2>
+    <p class="lead">生成不阻塞提交请求；状态持久化在 DB，所以"重试容易加上"（幂等、可恢复）——这是题目要求的设计点。</p>
+    <div class="card">
+      <div class="states">
+        <span class="state q">queued</span>
+        <span class="to">→</span>
+        <span class="state r">running</span>
+        <span class="to">→</span>
+        <span class="state c">completed</span>
+        <span class="to">&nbsp;｜&nbsp;</span>
+        <span class="state f">failed</span>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:10px">
+        DB 层 <code>CheckConstraint</code> 约束状态只能取这四个值 · status 字段加索引
+      </p>
+      <hr style="border:none;border-top:1px solid var(--border);margin:18px 0" />
+      <table>
+        <tr><th>阶段</th><th>谁触发</th><th>写入 DB</th><th>日志事件</th></tr>
+        <tr><td>提交</td><td>POST /api/jobs</td><td>insert(status=queued, paths)</td><td><code>job.created</code></td></tr>
+        <tr><td>开始</td><td>Harness.run</td><td>status=running, started_at</td><td><code>job.running</code></td></tr>
+        <tr><td>每次尝试</td><td>_invoke_with_retry</td><td>—</td><td><code>job.graph_attempt.started/completed/failed</code> · <code>job.retry_scheduled</code></td></tr>
+        <tr><td>成功</td><td>Harness.run</td><td>output_path, status=completed, completed_at</td><td><code>job.completed</code></td></tr>
+        <tr><td>失败</td><td>except 分支</td><td>rollback→重取→status=failed, error_message</td><td><code>job.failed</code></td></tr>
+        <tr><td>下载</td><td>GET …/download</td><td>—（只读，409 守卫未完成）</td><td><code>job.download</code></td></tr>
+      </table>
+      <div class="callout warn">
+        <b>演示细节 min_job_seconds：</b>compose 里设 <code>MIN_JOB_SECONDS=2</code>。样例数据生成只需毫秒级，会"秒完成"导致前端看不到 running 态；
+        Harness 在成功后补足到最小运行时长（打 <code>job.minimum_runtime.wait</code>），让评审能观察到 queued→running→completed 的完整流转。<strong>纯演示用，生产置 0。</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3 LangGraph 工作流 ============ -->
+  <section>
+    <h2><span class="num">3.</span> Agent 工作流（LangGraph 状态机）</h2>
+    <p class="lead">单智能体 + 有边界的状态图。<strong>profile_transactions 之后有真实条件分支</strong>，按确定性画像决定后续路径——这是"非平凡决策"而非"单次 LLM 调用"的关键体现。</p>
+    <div class="card flow">
+
+      <div class="node io"><div class="t">load_inputs</div><div class="d">透传初始 state（job_id / 路径 / instructions）</div></div>
+      <div class="arrow"></div>
+      <div class="node det"><div class="t">compute_hard_metrics</div><div class="d">analyzer：六个硬指标 + 交易画像（确定性，LLM 不可触碰）</div></div>
+      <div class="arrow"></div>
+      <div class="node det"><div class="t">profile_transactions</div><div class="d">画像就绪，作为分支判据</div></div>
+      <div class="arrow small"></div>
+
+      <div class="node cond"><div class="t">◇ decide_profile_branch</div><div class="d">抵扣占比 ≥ 30%　或　存在 ≥12h 长停记录？</div></div>
+
+      <div class="branch">
+        <div class="col">
+          <div class="label-edge">是 → 补充风险</div>
+          <div class="arrow small"></div>
+          <div class="node det"><div class="t">enrich_risk_findings</div><div class="d">打标记：high_deduct_ratio / long_stay_records</div></div>
+        </div>
+        <div class="col">
+          <div class="label-edge">否 → 直接规划</div>
+          <div class="arrow small" style="height:46px"></div>
+        </div>
+      </div>
+
+      <div class="arrow small"></div>
+      <div class="node llm"><div class="t">plan_report_with_llm</div><div class="d">决定章节集合；有 risk_flags 时插入"风险提示"节</div></div>
+      <div class="arrow"></div>
+      <div class="node llm"><div class="t">draft_narrative_with_llm</div><div class="d">生成摘要/补充观察/建议（Qwen 结构化输出，或无 key 时 stub）</div></div>
+      <div class="arrow"></div>
+      <div class="node det"><div class="t">generate_charts</div><div class="d">matplotlib 出 4 张真实图（支付方式/时长/入场时段/收费时段）</div></div>
+      <div class="arrow"></div>
+      <div class="node det"><div class="t">render_docx</div><div class="d">python-docx 套模板渲染，清除占位图，落盘 reports/{id}.docx</div></div>
+      <div class="arrow"></div>
+      <div class="node io"><div class="t">persist_success → END</div><div class="d">返回 final_state，Harness 写 output_path 并置 completed</div></div>
+
+    </div>
+    <div class="callout">
+      每个节点都由 <code>logged_node()</code> 包装，自动打 <code>graph.node.started/completed/failed</code>；
+      节点抛异常 → 冒泡到 Harness → job 置 failed 并记录错误。Agent loop 有边界（最多 2 次 attempt），不做无限自主循环。
+    </div>
+  </section>
+
+  <!-- ============ 4 确定性 vs LLM ============ -->
+  <section>
+    <h2><span class="num">4.</span> 核心设计：确定性计算 ⟷ LLM 推理的边界</h2>
+    <p class="lead">这是评分最看重的点。事实由代码算、LLM 只在 grounded context 上做表达与选择，无法改写任何硬数字。</p>
+    <div class="two">
+      <div class="card">
+        <h4 style="color:var(--det);margin-top:0">确定性侧（代码，可复现）</h4>
+        <p style="font-size:13.5px"><b>六个硬指标</b>（analyzer.compute_hard_metrics）：</p>
+        <table>
+          <tr><th>指标</th><th>定义</th></tr>
+          <tr><td>总交易笔数</td><td><code>len(df)</code></td></tr>
+          <tr><td>应收总金额</td><td><code>应收金额.sum()</code></td></tr>
+          <tr><td>实收总金额</td><td><code>实收金额(元).sum()</code></td></tr>
+          <tr><td>实际抵扣总额</td><td><code>实际抵扣额(元).sum()</code></td></tr>
+          <tr><td>实收率</td><td>实收/应收×100，1 位小数</td></tr>
+          <tr><td>主要支付方式</td><td>支付方式 众数 + 笔数</td></tr>
+        </table>
+        <p style="font-size:13px;color:var(--muted);margin-top:10px">画像：数据周期、支付方式/渠道分布、停车时长(均值/最长/分箱)、逐时入场&收费分布、异常候选(长停/零应收有实收/全额抵扣)。</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--llm);margin-top:0">LLM 侧（推理，受约束）</h4>
+        <p style="font-size:13.5px"><b>结构化输出 ReportDraft</b>（pydantic，<code>extra="forbid"</code>）：</p>
+        <span class="pill">executive_summary</span>
+        <span class="pill">observations[]</span>
+        <span class="pill">recommendations[]</span>
+        <ul style="font-size:13.3px">
+          <li>Prompt 把硬指标 + 画像作为 <b>grounded context</b> 传入，明确"不得重算/覆盖六个硬指标"。</li>
+          <li><code>with_structured_output(ReportDraft)</code> 强制 schema，杜绝自由文本跑偏。</li>
+          <li>补充观察被引导聚焦：<b>收入流失</b>（应收-实收缺口≈抵扣）、优惠/免费敞口、长停异常、时段规律。</li>
+          <li>无 Qwen key → <b>stub_report_draft</b>：同样基于真实数字生成，保证离线可评审、可测试。</li>
+        </ul>
+        <div class="callout" style="margin:8px 0 0">
+          关键保证：LLM 的输出只进入"叙述/观察/建议"段落；<b>表格里的六个硬数字始终来自 analyzer</b>，二者在 renderer 中分开写入。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5 数据模型 ============ -->
+  <section>
+    <h2><span class="num">5.</span> 数据模型与报告结构</h2>
+    <div class="two">
+      <div class="card">
+        <h4 style="margin-top:0">report_jobs 表（SQLAlchemy + Alembic）</h4>
+        <table>
+          <tr><th>字段</th><th>说明</th></tr>
+          <tr><td><code>id</code></td><td>uuid4 主键</td></tr>
+          <tr><td><code>status</code></td><td>queued/running/completed/failed，CheckConstraint + 索引</td></tr>
+          <tr><td><code>template_path / data_path</code></td><td>上传文件路径</td></tr>
+          <tr><td><code>output_path</code></td><td>生成的 docx 路径</td></tr>
+          <tr><td><code>instructions</code></td><td>用户自由指令（可空）</td></tr>
+          <tr><td><code>error_message</code></td><td>失败原因</td></tr>
+          <tr><td><code>created/started/completed/updated_at</code></td><td>生命周期时间戳</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0">输出 DOCX 章节（对齐官方模板）</h4>
+        <table>
+          <tr><th>章节</th><th>内容来源</th></tr>
+          <tr><td>报告信息</td><td>数据周期 + 生成时间（确定性）</td></tr>
+          <tr><td>一、关键指标（硬性数字）</td><td>analyzer 六指标表</td></tr>
+          <tr><td>二、支付方式与渠道</td><td>分布表 + 支付方式图</td></tr>
+          <tr><td>三、停车时长分析</td><td>时长表 + 时长/入场/收费 三图</td></tr>
+          <tr><td>四、补充观察</td><td>LLM observations</td></tr>
+          <tr><td>五、结论与建议</td><td>LLM recommendations</td></tr>
+        </table>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">渲染时清空模板正文重建，并删除模板自带示例占位图，确保只留 4 张真实图。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6 可观测性 ============ -->
+  <section>
+    <h2><span class="num">6.</span> 可观测性（结构化日志）</h2>
+    <p class="lead">log_event() 统一输出单行 JSON 到 stdout（含 UTC 时间戳）；可选接 LangSmith tracing。事后可凭 job_id 串起整条链路。</p>
+    <div class="card">
+      <table>
+        <tr><th>类别</th><th>事件</th><th>关键字段</th></tr>
+        <tr><td>用户请求</td><td><code>job.created · job.download</code></td><td>job_id, status</td></tr>
+        <tr><td>Job 生命周期</td><td><code>job.running · job.completed · job.failed · job.missing</code></td><td>job_id, output_path, error</td></tr>
+        <tr><td>重试</td><td><code>job.graph_attempt.* · job.retry_scheduled · job.minimum_runtime.wait</code></td><td>attempt, next_attempt</td></tr>
+        <tr><td>Graph 节点</td><td><code>graph.node.started/completed/failed</code></td><td>job_id, node</td></tr>
+        <tr><td>LLM 调用</td><td><code>llm.call.completed / llm.call.failed</code></td><td><b>model, prompt, response, latency_ms</b></td></tr>
+      </table>
+      <div class="callout">题目明确要求"记录每次 LLM 调用的 prompt/response/model/latency" → 由 <code>llm.call.*</code> 事件满足，便于事后调试 Agent 行为。</div>
+    </div>
+  </section>
+
+  <!-- ============ 7 设计决策 ============ -->
+  <section>
+    <h2><span class="num">7.</span> 关键设计决策与权衡（讲解要点）</h2>
+    <div class="card">
+      <table>
+        <tr><th>决策</th><th>选择</th><th>理由 / 权衡</th></tr>
+        <tr><td>异步执行</td><td>FastAPI BackgroundTasks + DB 持久化</td><td>不引入 Celery/Redis，控制在 6h 范围；状态持久化 → 重试/恢复"容易加"。代价：单机、进程内，不抗重启（已知，可讨论升级路径）。</td></tr>
+        <tr><td>Agent 框架</td><td>LangGraph 单智能体状态图</td><td>显式节点 + 条件边，可序列化、可调试、有边界；优于"一坨 prompt"。未上多智能体（无明确需求）。</td></tr>
+        <tr><td>非平凡决策</td><td>profile 后条件分支</td><td>抵扣占比/长停驱动是否补风险节，进而影响章节与叙述——证明 Agent 在"决定写什么"。</td></tr>
+        <tr><td>硬指标</td><td>pandas 确定性计算 + 不硬编码</td><td>同输入必同输出；LLM 仅在 grounded 事实上叙述，schema 强约束防跑偏。</td></tr>
+        <tr><td>LLM 可降级</td><td>Qwen ↔ stub 双路</td><td>无 key 也能端到端跑通、可测试、可评审；CI 不依赖外部 API。</td></tr>
+        <tr><td>模板策略</td><td>清空重建 + 删占位图 + 复用样式</td><td>章节对齐官方模板但内容全由数据驱动；模板无关性较好。</td></tr>
+        <tr><td>测试</td><td>API 级 submit→status→download（mock harness）+ 硬指标/渲染单测</td><td>满足最低要求，风险驱动 TDD 优先覆盖确定性计算与生命周期，不追求穷尽覆盖。</td></tr>
+        <tr><td>交付</td><td>docker-compose 一键起</td><td>backend 启动先 alembic upgrade head 再 uvicorn；db 健康检查后再起后端。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 8 预设问答 ============ -->
+  <section>
+    <h2><span class="num">8.</span> 面试预设问答（Be ready to discuss）</h2>
+    <p class="lead">点开每条看要点。面试官常从"为什么这么设计 / 如何扩展 / 边界在哪"切入。</p>
+
+    <details>
+      <summary>Q1. 怎么保证这是"真 Agent"而不是模板填充 + 单次 LLM 调用？</summary>
+      <div class="ans">
+        三点：① LangGraph 多节点状态图，节点间有数据流转的 state；② <b>profile 后的真实条件分支</b>——抵扣占比/长停决定是否走 enrich_risk_findings，进而改变 plan 的章节集合；③ LLM 承担"选重点 + 组织叙述 + 写观察/建议"两个独立节点（plan 与 draft），不是一次性产文本。硬指标完全在 LLM 之外，体现"管理 Agent 产出确定性结果"的能力。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q2. 为什么用 BackgroundTasks 而不是 Celery？重试怎么加？</summary>
+      <div class="ans">
+        6 小时范围内不该做成分布式任务系统。关键是把状态<b>持久化到 DB</b> 且生成<b>幂等</b>（按 job_id 找输入、产出可覆盖），所以重试是"加上去"而非"重构"。<br/>
+        升级路径：把 <code>run_generation_harness(job_id)</code> 换成 Celery/RQ 任务即可——签名只吃 job_id，状态都在 DB；再加 attempts 计数列 + 指数退避 + 死信。当前 Harness 已内置 <code>max_attempts=2</code> 的图级重试雏形。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q3. 如何确保六个硬指标永远正确、可复现、且 LLM 不能篡改？</summary>
+      <div class="ans">
+        analyzer 用 pandas 直接对列求和/计数，无随机性 → 同输入同输出；有专门单测锁定样例值（3674 / 105795 / 57397.5 / 48285 / 54.3% / 微信1435）。renderer 中<b>表格数字只取 metrics 字典</b>，LLM 的 ReportDraft 只供叙述段落，物理上分离。Prompt 也显式声明硬指标不可重算。即便 LLM 乱说，也进不了指标表。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q4. 没有 LLM key 时怎么办？stub 会不会"假数据"？</summary>
+      <div class="ans">
+        stub_report_draft 同样读真实 metrics/profile 生成摘要、观察、建议（如"应收-实收缺口≈抵扣、占应收 45.6%"都是算出来的），只是不调外部模型。好处：离线可端到端、CI 不依赖网络、评审无需配 key。接 Qwen 时走 <code>ChatOpenAI.with_structured_output</code>，OpenAI 兼容接口，换 base_url/model 即可。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q5. 补充观察的"洞察"从哪来？怎么避免空话？</summary>
+      <div class="ans">
+        把对管理者最有价值的信号预先算成事实喂给 LLM：收入流失（应收 105795 − 实收 57398 ≈ 48398 缺口，几乎全由 48285 抵扣造成，占应收 45.6%）、优惠敞口（会员积分+优惠券 2173 笔占 59.1%）、长停异常（≥12h 共 78 笔，最长 165h）。每条观察都带具体数字。Prompt 指明聚焦这些维度、必须数字支撑。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q6. 失败如何处理？节点抛错会怎样？</summary>
+      <div class="ans">
+        节点异常被 logged_node 记 <code>graph.node.failed</code> 后冒泡；Harness 的 _invoke_with_retry 捕获，未达 max_attempts 则记 <code>retry_scheduled</code> 重试，否则抛 RuntimeError。run() 的 except 分支 <b>rollback → 重新取 job → status=failed + error_message → commit → 记 job.failed</b>。前端轮询到 failed 展示错误。下载端点对未完成返回 409。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q7. 模板无关性 / 换个模板还能用吗？</summary>
+      <div class="ans">
+        当前 renderer 清空模板正文、复用其命名样式后按固定章节重建，章节标题对齐官方模板。强项：不依赖模板里的占位文字位置，稳定。局限：章节结构是代码写死的，换全新结构模板需调 renderer。可讨论的演进：让 plan 节点输出"章节计划"驱动 renderer，做到更强的模板/结构无关性——属于"可加但不在 6h 范围"。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q8. 哪里会成为瓶颈 / 生产化还差什么？</summary>
+      <div class="ans">
+        <ul>
+          <li><b>执行模型</b>：进程内 BackgroundTasks，重启丢任务、无并发控制 → 上 Celery/RQ + 队列。</li>
+          <li><b>存储</b>：本地卷 → 对象存储（S3），便于多副本与下载分发。</li>
+          <li><b>大文件</b>：上传已分块流式落盘；analyzer 全量读入内存，超大 CSV 需分块/采样。</li>
+          <li><b>鉴权 / 多租户</b>：题目明确 out of scope，生产需加。</li>
+          <li><b>LLM 稳健性</b>：超时/重试/成本上限/响应校验（已有 schema 约束）。</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Q9. min_job_seconds 是什么，为什么在？</summary>
+      <div class="ans">
+        纯演示开关。样例数据生成是毫秒级，前端 1.5s 轮询可能直接看到 completed，观察不到 running 态。成功后补足到最小运行时长（默认 0，compose 设 2s），让评审看到完整状态流转，并打 <code>job.minimum_runtime.wait</code> 日志。生产应置 0——它不影响任何报告内容或硬指标。
+      </div>
+    </details>
+
+    <details>
+      <summary>Q10. 测试策略？为什么不追求高覆盖？</summary>
+      <div class="ans">
+        风险驱动 TDD：优先覆盖<b>最易错且影响评分</b>的部分——六个硬指标计算、API submit→status→download 生命周期（mock 掉 harness，不依赖真实 LLM）、渲染产出 docx 含图、stub 不覆盖硬指标。题目明确"不要求穷尽覆盖、不要镀金"，所以胶水代码不强测。共 11 个测试，跑通即绿。
+      </div>
+    </details>
+
+  </section>
+
+  <p class="foot">
+    本图严格对照源码（app/api · services/harness · workflow/graph · reporting/* · db/models）整理，用于技术探讨。<br/>
+    打开方式：浏览器直接打开本文件，或 <code class="path">open docs/solution-overview.html</code>。
+  </p>
+
+</div>
+</body>
+</html>
