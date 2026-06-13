@@ -126,14 +126,14 @@
 
 ## 9. API 级测试
 
-- [ ] 编写 submit -> status -> download 测试。
-- [ ] mock generation harness。
-- [ ] 覆盖失败或未完成下载路径。
+- [x] 编写 submit -> status -> download 测试。
+- [x] mock generation harness。
+- [x] 覆盖失败或未完成下载路径。
 
 验收：
 
-- [ ] `pytest` 通过。
-- [ ] 测试不依赖真实 LLM。
+- [x] `pytest` 通过。
+- [x] 测试不依赖真实 LLM。
 
 建议提交：`Add API lifecycle tests`
 
