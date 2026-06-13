@@ -19,15 +19,15 @@
 
 ## 2. 数据库模型和迁移
 
-- [ ] 创建 PostgreSQL 配置读取。
-- [ ] 定义 `report_jobs` 模型。
-- [ ] 配置 Alembic。
-- [ ] 添加初始迁移。
+- [x] 创建 PostgreSQL 配置读取。
+- [x] 定义 `report_jobs` 模型。
+- [x] 配置 Alembic。
+- [x] 添加初始迁移。
 
 验收：
 
-- [ ] 能创建或迁移数据库表。
-- [ ] job 状态字段覆盖 queued / running / completed / failed。
+- [x] 能创建或迁移数据库表。
+- [x] job 状态字段覆盖 queued / running / completed / failed。
 
 建议提交：`Add job persistence`
 
