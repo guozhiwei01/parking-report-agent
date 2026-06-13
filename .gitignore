@@ -229,6 +229,7 @@ frontend/dist/
 frontend/.vite/
 frontend/.vitest/
 frontend/coverage/
+frontend/*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

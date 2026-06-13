@@ -4,16 +4,16 @@
 
 ## 1. 项目脚手架和依赖
 
-- [ ] 创建后端 Python 包结构。
-- [ ] 添加后端依赖文件。
-- [ ] 创建 Vue3 / Vite / TypeScript 前端。
-- [ ] 添加 `.env.example`。
+- [x] 创建后端 Python 包结构。
+- [x] 添加后端依赖文件。
+- [x] 创建 Vue3 / Vite / TypeScript 前端。
+- [x] 添加 `.env.example`。
 
 验收：
 
-- [ ] 后端依赖可安装。
-- [ ] 前端依赖可安装。
-- [ ] 不包含真实密钥。
+- [x] 后端依赖可安装。
+- [x] 前端依赖可安装。
+- [x] 不包含真实密钥。
 
 建议提交：`Scaffold backend and frontend`
 
