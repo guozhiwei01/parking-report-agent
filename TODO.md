@@ -65,16 +65,16 @@
 
 ## 5. LangGraph 工作流骨架
 
-- [ ] 定义 graph state。
-- [ ] 实现 generation harness。
-- [ ] 创建 LangGraph 节点骨架。
-- [ ] 接入 job 状态更新。
-- [ ] 添加节点级结构化日志。
+- [x] 定义 graph state。
+- [x] 实现 generation harness。
+- [x] 创建 LangGraph 节点骨架。
+- [x] 接入 job 状态更新。
+- [x] 添加节点级结构化日志。
 
 验收：
 
-- [ ] graph 可以用 fake 节点跑完整流程。
-- [ ] 成功和失败都会更新 job 状态。
+- [x] graph 可以用 fake 节点跑完整流程。
+- [x] 成功和失败都会更新 job 状态。
 
 建议提交：`Add LangGraph generation workflow`
 
