@@ -139,14 +139,14 @@
 
 ## 10. Docker Compose
 
-- [ ] 添加后端 Dockerfile。
-- [ ] 添加前端 Dockerfile 或构建流程。
-- [ ] 添加 `docker-compose.yml`。
-- [ ] 配置 Postgres 服务。
+- [x] 添加后端 Dockerfile。
+- [x] 添加前端 Dockerfile 或构建流程。
+- [x] 添加 `docker-compose.yml`。
+- [x] 配置 Postgres 服务。
 
 验收：
 
-- [ ] `docker compose up --build` 可以启动系统。
+- [x] `docker compose up --build` 可以启动系统。
 - [ ] README 中说明本机 Docker CLI 路径问题。
 
 建议提交：`Add Docker Compose setup`

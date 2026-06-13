@@ -1,0 +1,12 @@
+.git
+.venv
+.pytest_cache
+frontend/node_modules
+frontend/dist
+frontend/tsconfig.tsbuildinfo
+storage
+logs
+*.log
+.env
+.env.*
+!.env.example
