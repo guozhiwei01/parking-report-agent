@@ -44,6 +44,27 @@ cat sample_logs/job-run.jsonl | jq 'select(.event=="llm.call.completed")'
   其余全是确定性节点 —— 直观体现“硬指标由代码算、LLM 只负责叙述”的边界。
 - LLM 节点带 `model=qwen3.6-flash`、token 数、以及结构化 inputs/outputs。
 
+## 3. `job-run-failed.jsonl` — 失败案例日志（可观测性最有价值的场景）
+
+故意提交一个**缺少必需列**（删掉 `支付方式`）的 CSV，展示出错时日志如何精确定位问题。
+事件序列：
+
+```
+job.created → job.running
+  → job.graph_attempt.started (attempt=1)
+    → graph.node.completed (load_inputs)
+    → graph.node.failed (compute_hard_metrics)  error: CSV missing required columns: 支付方式
+  → job.graph_attempt.failed (attempt=1)
+  → job.retry_scheduled (next_attempt=2)          ← Harness 有限重试
+  → job.graph_attempt.started (attempt=2) … 同样在 compute_hard_metrics 失败
+  → job.failed   error: generation failed after 2 attempts: CSV missing required columns: 支付方式
+```
+
+要点：
+- **故障被定位到具体节点**（`compute_hard_metrics`）和**具体原因**（缺哪一列），无需翻代码。
+- 完整体现 `max_attempts=2` 的**有限重试**：失败 → 重试 → 再失败 → 落 `failed`。
+- job 状态被持久化为 `failed` 且写入 `error_message`，前端轮询即可展示。
+
 ## 复现方式
 
 ```bash

@@ -1,0 +1,16 @@
+{"ts": "2026-06-13T04:46:53.644187+00:00", "event": "job.created", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "status": "queued"}
+{"ts": "2026-06-13T04:46:53.657073+00:00", "event": "job.running", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673"}
+{"ts": "2026-06-13T04:46:53.657140+00:00", "event": "job.graph_attempt.started", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "attempt": 1}
+{"ts": "2026-06-13T04:46:53.659690+00:00", "event": "graph.node.started", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "load_inputs"}
+{"ts": "2026-06-13T04:46:53.659730+00:00", "event": "graph.node.completed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "load_inputs"}
+{"ts": "2026-06-13T04:46:53.660088+00:00", "event": "graph.node.started", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "compute_hard_metrics"}
+{"ts": "2026-06-13T04:46:53.663798+00:00", "event": "graph.node.failed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "compute_hard_metrics", "error": "CSV missing required columns: 支付方式"}
+{"ts": "2026-06-13T04:46:53.667335+00:00", "event": "job.graph_attempt.failed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "attempt": 1, "error": "CSV missing required columns: 支付方式"}
+{"ts": "2026-06-13T04:46:53.667377+00:00", "event": "job.retry_scheduled", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "next_attempt": 2}
+{"ts": "2026-06-13T04:46:53.667392+00:00", "event": "job.graph_attempt.started", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "attempt": 2}
+{"ts": "2026-06-13T04:46:53.667906+00:00", "event": "graph.node.started", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "load_inputs"}
+{"ts": "2026-06-13T04:46:53.667935+00:00", "event": "graph.node.completed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "load_inputs"}
+{"ts": "2026-06-13T04:46:53.668157+00:00", "event": "graph.node.started", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "compute_hard_metrics"}
+{"ts": "2026-06-13T04:46:53.668772+00:00", "event": "graph.node.failed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "node": "compute_hard_metrics", "error": "CSV missing required columns: 支付方式"}
+{"ts": "2026-06-13T04:46:53.669504+00:00", "event": "job.graph_attempt.failed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "attempt": 2, "error": "CSV missing required columns: 支付方式"}
+{"ts": "2026-06-13T04:46:53.671503+00:00", "event": "job.failed", "job_id": "93af20e9-3e2f-4bda-a87f-77e6f006d673", "error": "generation failed after 2 attempts: CSV missing required columns: 支付方式"}
