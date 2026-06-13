@@ -38,7 +38,15 @@
           </div>
           <div>
             <span>状态</span>
-            <strong id="job-status"></strong>
+            <span id="job-status" class="status-badge"></span>
+          </div>
+          <div id="job-progress" class="progress" hidden>
+            <div class="progress-bar"><div class="progress-bar-fill"></div></div>
+            <p class="progress-text">
+              <span class="dot"></span>
+              <span id="progress-message">正在生成报告…</span>
+              <span id="progress-elapsed"></span>
+            </p>
           </div>
           <p id="job-error" class="error" hidden></p>
           <a id="download-link" class="download" hidden>下载 DOCX</a>
