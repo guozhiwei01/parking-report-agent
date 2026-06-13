@@ -1,0 +1,232 @@
+{
+  "trace_id": "019ebf49-66a9-7440-81b5-0a8f49a0f501",
+  "project": "parking-report-agent",
+  "root": "LangGraph",
+  "node_count": 14,
+  "runs": [
+    {
+      "name": "LangGraph",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.209916",
+      "end_time": "2026-06-13T04:42:33.360947"
+    },
+    {
+      "name": "load_inputs",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.211569",
+      "end_time": "2026-06-13T04:41:59.211826"
+    },
+    {
+      "name": "compute_hard_metrics",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.212051",
+      "end_time": "2026-06-13T04:41:59.228028"
+    },
+    {
+      "name": "profile_transactions",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.228296",
+      "end_time": "2026-06-13T04:41:59.228689"
+    },
+    {
+      "name": "decide_profile_branch",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.228544",
+      "end_time": "2026-06-13T04:41:59.228630"
+    },
+    {
+      "name": "enrich_risk_findings",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.228861",
+      "end_time": "2026-06-13T04:41:59.229024"
+    },
+    {
+      "name": "plan_report_with_llm",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.229186",
+      "end_time": "2026-06-13T04:41:59.229385"
+    },
+    {
+      "name": "draft_narrative_with_llm",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.229535",
+      "end_time": "2026-06-13T04:42:33.172191"
+    },
+    {
+      "name": "RunnableSequence",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.231042",
+      "end_time": "2026-06-13T04:42:33.171813"
+    },
+    {
+      "name": "ChatOpenAI",
+      "run_type": "llm",
+      "status": "success",
+      "start_time": "2026-06-13T04:41:59.231642",
+      "end_time": "2026-06-13T04:42:33.169322",
+      "model": "qwen3.6-flash",
+      "total_tokens": 5785,
+      "inputs": {
+        "messages": [
+          [
+            {
+              "id": [
+                "langchain",
+                "schema",
+                "messages",
+                "HumanMessage"
+              ],
+              "kwargs": {
+                "content": "你是停车场经营分析助手。六个硬指标已经由代码计算完成，不能重新计算、改写或覆盖。\n硬指标：{'total_transactions': 3674, 'receivable_amount': 105795.0, 'collected_amount': 57397.5, 'actual_deduct_amount': 48285.0, 'collection_rate': 54.3, 'top_payment_method': '微信', 'top_payment_method_count': 1435}\n交易画像：{'period': {'start': '2026-04-01', 'end': '2026-04-30'}, 'payment_method_counts': [{'name': '微信', 'count': 1435}, {'name': '会员积分', 'count': 1396}, {'name': '优惠券', 'count': 777}, {'name': '支付宝', 'count': 63}, {'name': '现金', 'count': 3}], 'payment_channel_counts': [{'name': '线上支付', 'count': 3122}, {'name': '出口贴码', 'count': 544}, {'name': '出口缴费机', 'count': 5}, {'name': '遥控放行登记', 'count': 3}], 'duration': {'average_hours': 3.27, 'max_hours': 165.45, 'bins': [{'range': '0-2', 'count': 1491}, {'range': '2-4', 'count': 1271}, {'range': '4-6', 'count': 573}, {'range': '6-8', 'count': 146}, {'range': '8-10', 'count': 80}, {'range': '10-12', 'count': 35}, {'range': '12+', 'count': 78}]}, 'entry_hour_counts': [{'hour': 6, 'count': 10}, {'hour': 7, 'count': 43}, {'hour': 8, 'count': 104}, {'hour': 9, 'count': 269}, {'hour': 10, 'count': 213}, {'hour': 11, 'count': 275}, {'hour': 12, 'count': 224}, {'hour': 13, 'count': 355}, {'hour': 14, 'count': 322}, {'hour': 15, 'count': 278}, {'hour': 16, 'count': 307}, {'hour': 17, 'count': 401}, {'hour': 18, 'count': 513}, {'hour': 19, 'count': 221}], 'charge_hour_counts': [{'hour': 6, 'count': 4}, {'hour': 7, 'count': 14}, {'hour': 8, 'count': 23}, {'hour': 9, 'count': 37}, {'hour': 10, 'count': 85}, {'hour': 11, 'count': 165}, {'hour': 12, 'count': 204}, {'hour': 13, 'count': 245}, {'hour': 14, 'count': 251}, {'hour': 15, 'count': 293}, {'hour': 16, 'count': 334}, {'hour': 17, 'count': 299}, {'hour': 18, 'count': 274}, {'hour': 19, 'count': 259}], 'anomaly_candidates': [{'type': 'long_stay_over_12h', 'count': 78}, {'type': 'zero_receivable_with_collection', 'count': 0}, {'type': 'full_deduct', 'count': 1291}]}\n用户补充说明：重点分析收入流失和优惠敞口\n请严格按以下 JSON 对象输出，键名必须完全一致，不要新增、改名或嵌套其它键：\n{\n  \"executive_summary\": \"面向管理者的一段经营摘要（字符串）\",\n  \"observations\": [\"补充观察1\", \"补充观察2\", \"...\"],\n  \"recommendations\": [\"可执行建议1\", \"可执行建议2\", \"...\"]\n}\nobservations 与 recommendations 都是字符串数组，每个元素是一句话，不要用对象。\n补充观察请聚焦对经营决策最有价值的点，例如：应收与实收之间的缺口及其主要成因（抵扣 / 免费敞口）、优惠或会员渠道带来的收入流失、长停或异常停车、时段规律。每条观察都要有具体数字支撑，不要泛泛而谈。",
+                "type": "human"
+              },
+              "lc": 1,
+              "type": "constructor"
+            }
+          ]
+        ]
+      },
+      "outputs": {
+        "generations": [
+          [
+            {
+              "generation_info": {
+                "finish_reason": "stop",
+                "logprobs": null
+              },
+              "message": {
+                "id": [
+                  "langchain",
+                  "schema",
+                  "messages",
+                  "AIMessage"
+                ],
+                "kwargs": {
+                  "additional_kwargs": {
+                    "parsed": {
+                      "id": [
+                        "app",
+                        "reporting",
+                        "llm",
+                        "ReportDraft"
+                      ],
+                      "lc": 1,
+                      "repr": "ReportDraft(executive_summary='本月停车场整体通行效率良好，但营收质量面临严峻挑战。实收金额仅为57,397.5元，应收与实收之间存在48,285.0元的巨大缺口，主要由35.1%的全额抵扣订单及超六成的积分/优惠券核销导致。当前优惠敞口已严重侵蚀现金流，且短停高频使用权益的模式未能有效转化为长期收益。建议立即收紧免停与折扣权限，建立长停异常监控，并通过精细化权益投放平衡引流与营收目标。', observations=['应收与实收缺口达48,285.0元，实际抵扣敞口占比高达45.7%，其中1,291笔交易（占总单量35.1%）为全额抵扣，导致近三分之一车流未产生直接现金收益。', '会员积分（1,396次）与优惠券（777次）合计覆盖2,173笔订单，叠加全额抵扣单量后，超六成交易依赖权益核销，优惠敞口已严重侵蚀基础营收。', '停车时长集中在0-4小时（共2,762笔，占比75.2%），短停车辆高频使用积分或优惠券导致单次客单价被大幅摊薄，权益发放与实际收费脱节。', '线上支付渠道占比达85%（3,122笔），虽提升通行效率，但结合高比例的全额抵扣与积分支付，反映出当前定价策略缺乏对免费或低费车流的现金流约束机制。', '超过12小时的长停异常车辆达78笔，若未纳入有效计费或存在系统漏计，将进一步扩大隐性收入流失风险。'], recommendations=['针对1,291笔全额抵扣订单实施分级管控，设置单日或单月免停额度上限，避免短期访客过度消耗免费权益。', '优化会员积分与优惠券发放逻辑，将核销门槛与消费金额或停留时长挂钩，确保优惠仅作用于高价值或长停客户。', '建立长停车辆（大于12小时）自动预警与人工复核机制，排查78笔异常订单的计费状态，堵塞漏收漏洞。', '在出口缴费机与线上支付环节增加最低实收金额提示或阶梯折扣规则，引导用户接受部分现金支付以缩小48,285元的抵扣敞口。', '开展权益使用ROI专项审计，对比积分与优惠券带来的复访率与直接营收损失，动态调整补贴预算至转化率更高的精准营销场景。'])",
+                      "type": "not_implemented"
+                    },
+                    "refusal": null
+                  },
+                  "content": "{\n  \"executive_summary\": \"本月停车场整体通行效率良好，但营收质量面临严峻挑战。实收金额仅为57,397.5元，应收与实收之间存在48,285.0元的巨大缺口，主要由35.1%的全额抵扣订单及超六成的积分/优惠券核销导致。当前优惠敞口已严重侵蚀现金流，且短停高频使用权益的模式未能有效转化为长期收益。建议立即收紧免停与折扣权限，建立长停异常监控，并通过精细化权益投放平衡引流与营收目标。\",\n  \"observations\": [\n    \"应收与实收缺口达48,285.0元，实际抵扣敞口占比高达45.7%，其中1,291笔交易（占总单量35.1%）为全额抵扣，导致近三分之一车流未产生直接现金收益。\",\n    \"会员积分（1,396次）与优惠券（777次）合计覆盖2,173笔订单，叠加全额抵扣单量后，超六成交易依赖权益核销，优惠敞口已严重侵蚀基础营收。\",\n    \"停车时长集中在0-4小时（共2,762笔，占比75.2%），短停车辆高频使用积分或优惠券导致单次客单价被大幅摊薄，权益发放与实际收费脱节。\",\n    \"线上支付渠道占比达85%（3,122笔），虽提升通行效率，但结合高比例的全额抵扣与积分支付，反映出当前定价策略缺乏对免费或低费车流的现金流约束机制。\",\n    \"超过12小时的长停异常车辆达78笔，若未纳入有效计费或存在系统漏计，将进一步扩大隐性收入流失风险。\"\n  ],\n  \"recommendations\": [\n    \"针对1,291笔全额抵扣订单实施分级管控，设置单日或单月免停额度上限，避免短期访客过度消耗免费权益。\",\n    \"优化会员积分与优惠券发放逻辑，将核销门槛与消费金额或停留时长挂钩，确保优惠仅作用于高价值或长停客户。\",\n    \"建立长停车辆（大于12小时）自动预警与人工复核机制，排查78笔异常订单的计费状态，堵塞漏收漏洞。\",\n    \"在出口缴费机与线上支付环节增加最低实收金额提示或阶梯折扣规则，引导用户接受部分现金支付以缩小48,285元的抵扣敞口。\",\n    \"开展权益使用ROI专项审计，对比积分与优惠券带来的复访率与直接营收损失，动态调整补贴预算至转化率更高的精准营销场景。\"\n  ]\n}",
+                  "id": "run--019ebf49-66bf-7602-9944-0f1fd51cdccd-0",
+                  "invalid_tool_calls": [],
+                  "response_metadata": {
+                    "finish_reason": "stop",
+                    "id": "chatcmpl-ede2d611-364f-9caf-ab9e-14cc1d70d5f7",
+                    "logprobs": null,
+                    "model_name": "qwen3.6-flash",
+                    "service_tier": null,
+                    "system_fingerprint": null,
+                    "token_usage": {
+                      "completion_tokens": 4694,
+                      "completion_tokens_details": {
+                        "accepted_prediction_tokens": null,
+                        "audio_tokens": null,
+                        "reasoning_tokens": 4105,
+                        "rejected_prediction_tokens": null,
+                        "text_tokens": 4694
+                      },
+                      "prompt_tokens": 1091,
+                      "prompt_tokens_details": {
+                        "audio_tokens": null,
+                        "cached_tokens": null,
+                        "text_tokens": 1091
+                      },
+                      "total_tokens": 5785
+                    }
+                  },
+                  "tool_calls": [],
+                  "type": "ai",
+                  "usage_metadata": {
+                    "input_token_details": {},
+                    "input_tokens": 1091,
+                    "output_token_details": {
+                      "reasoning": 4105
+                    },
+                    "output_tokens": 4694,
+                    "total_tokens": 5785
+                  }
+                },
+                "lc": 1,
+                "type": "constructor"
+              },
+              "text": "{\n  \"executive_summary\": \"本月停车场整体通行效率良好，但营收质量面临严峻挑战。实收金额仅为57,397.5元，应收与实收之间存在48,285.0元的巨大缺口，主要由35.1%的全额抵扣订单及超六成的积分/优惠券核销导致。当前优惠敞口已严重侵蚀现金流，且短停高频使用权益的模式未能有效转化为长期收益。建议立即收紧免停与折扣权限，建立长停异常监控，并通过精细化权益投放平衡引流与营收目标。\",\n  \"observations\": [\n    \"应收与实收缺口达48,285.0元，实际抵扣敞口占比高达45.7%，其中1,291笔交易（占总单量35.1%）为全额抵扣，导致近三分之一车流未产生直接现金收益。\",\n    \"会员积分（1,396次）与优惠券（777次）合计覆盖2,173笔订单，叠加全额抵扣单量后，超六成交易依赖权益核销，优惠敞口已严重侵蚀基础营收。\",\n    \"停车时长集中在0-4小时（共2,762笔，占比75.2%），短停车辆高频使用积分或优惠券导致单次客单价被大幅摊薄，权益发放与实际收费脱节。\",\n    \"线上支付渠道占比达85%（3,122笔），虽提升通行效率，但结合高比例的全额抵扣与积分支付，反映出当前定价策略缺乏对免费或低费车流的现金流约束机制。\",\n    \"超过12小时的长停异常车辆达78笔，若未纳入有效计费或存在系统漏计，将进一步扩大隐性收入流失风险。\"\n  ],\n  \"recommendations\": [\n    \"针对1,291笔全额抵扣订单实施分级管控，设置单日或单月免停额度上限，避免短期访客过度消耗免费权益。\",\n    \"优化会员积分与优惠券发放逻辑，将核销门槛与消费金额或停留时长挂钩，确保优惠仅作用于高价值或长停客户。\",\n    \"建立长停车辆（大于12小时）自动预警与人工复核机制，排查78笔异常订单的计费状态，堵塞漏收漏洞。\",\n    \"在出口缴费机与线上支付环节增加最低实收金额提示或阶梯折扣规则，引导用户接受部分现金支付以缩小48,285元的抵扣敞口。\",\n    \"开展权益使用ROI专项审计，对比积分与优惠券带来的复访率与直接营收损失，动态调整补贴预算至转化率更高的精准营销场景。\"\n  ]\n}",
+              "type": "ChatGeneration"
+            }
+          ]
+        ],
+        "llm_output": {
+          "id": "chatcmpl-ede2d611-364f-9caf-ab9e-14cc1d70d5f7",
+          "model_name": "qwen3.6-flash",
+          "service_tier": null,
+          "system_fingerprint": null,
+          "token_usage": {
+            "completion_tokens": 4694,
+            "completion_tokens_details": {
+              "accepted_prediction_tokens": null,
+              "audio_tokens": null,
+              "reasoning_tokens": 4105,
+              "rejected_prediction_tokens": null,
+              "text_tokens": 4694
+            },
+            "prompt_tokens": 1091,
+            "prompt_tokens_details": {
+              "audio_tokens": null,
+              "cached_tokens": null,
+              "text_tokens": 1091
+            },
+            "total_tokens": 5785
+          }
+        },
+        "run": null,
+        "type": "LLMResult"
+      }
+    },
+    {
+      "name": "RunnableLambda",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:42:33.170939",
+      "end_time": "2026-06-13T04:42:33.171689"
+    },
+    {
+      "name": "generate_charts",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:42:33.173182",
+      "end_time": "2026-06-13T04:42:33.342628"
+    },
+    {
+      "name": "render_docx",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:42:33.342901",
+      "end_time": "2026-06-13T04:42:33.360456"
+    },
+    {
+      "name": "persist_success",
+      "run_type": "chain",
+      "status": "success",
+      "start_time": "2026-06-13T04:42:33.360667",
+      "end_time": "2026-06-13T04:42:33.360832"
+    }
+  ]
+}
