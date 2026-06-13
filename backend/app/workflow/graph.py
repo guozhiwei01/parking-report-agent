@@ -4,6 +4,7 @@ from typing import Callable
 from langgraph.graph import END, StateGraph
 
 from app.core.config import get_settings
+from app.reporting.analyzer import analyze_transactions
 from app.services.logging import log_event
 from app.workflow.state import ReportState
 
@@ -31,11 +32,12 @@ def load_inputs(state: ReportState) -> ReportState:
 
 
 def compute_hard_metrics(state: ReportState) -> ReportState:
-    return {**state, "metrics": {"status": "pending-real-analyzer"}}
+    analysis = analyze_transactions(state["data_path"])
+    return {**state, "metrics": analysis["metrics"], "profile": analysis["profile"]}
 
 
 def profile_transactions(state: ReportState) -> ReportState:
-    return {**state, "profile": {"status": "pending-real-profiler"}}
+    return state
 
 
 def plan_report_with_llm(state: ReportState) -> ReportState:

@@ -12,7 +12,7 @@ def test_report_graph_runs_with_fake_nodes(tmp_path, monkeypatch) -> None:
         {
             "job_id": "job-1",
             "template_path": "template.docx",
-            "data_path": "data.csv",
+            "data_path": "Interview_materials/data.csv",
             "instructions": None,
         }
     )
