@@ -33,17 +33,17 @@
 
 ## 3. Job API
 
-- [ ] 实现 `POST /api/jobs`。
-- [ ] 实现 `GET /api/jobs/{job_id}`。
-- [ ] 实现 `GET /api/jobs/{job_id}/download`。
-- [ ] 保存上传文件到 job 专属目录。
-- [ ] 接入后台任务入口，但生成逻辑可先 mock。
+- [x] 实现 `POST /api/jobs`。
+- [x] 实现 `GET /api/jobs/{job_id}`。
+- [x] 实现 `GET /api/jobs/{job_id}/download`。
+- [x] 保存上传文件到 job 专属目录。
+- [x] 接入后台任务入口，但生成逻辑可先 mock。
 
 验收：
 
-- [ ] 提交请求快速返回 job id。
-- [ ] 状态刷新后仍可查询。
-- [ ] 未完成任务不能下载。
+- [x] 提交请求快速返回 job id。
+- [x] 状态刷新后仍可查询。
+- [x] 未完成任务不能下载。
 
 建议提交：`Add job API lifecycle`
 
