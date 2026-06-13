@@ -147,21 +147,21 @@
 验收：
 
 - [x] `docker compose up --build` 可以启动系统。
-- [ ] README 中说明本机 Docker CLI 路径问题。
+- [x] README 中说明本机 Docker CLI 路径问题。
 
 建议提交：`Add Docker Compose setup`
 
 ## 11. README 和样例报告
 
-- [ ] 编写 README。
-- [ ] 说明运行方式、测试方式和环境变量。
-- [ ] 说明 LangGraph / LangChain / LangSmith 设计。
-- [ ] 说明确定性计算和 LLM 推理边界。
-- [ ] 用提供材料生成样例报告并放入 `sample_output/`。
+- [x] 编写 README。
+- [x] 说明运行方式、测试方式和环境变量。
+- [x] 说明 LangGraph / LangChain / LangSmith 设计。
+- [x] 说明确定性计算和 LLM 推理边界。
+- [x] 用提供材料生成样例报告并放入 `sample_output/`。
 
 验收：
 
-- [ ] 新用户能按 README 跑起来。
-- [ ] 样例报告来自真实生成流程。
+- [x] 新用户能按 README 跑起来。
+- [x] 样例报告来自真实生成流程。
 
 建议提交：`Document setup and add sample report`

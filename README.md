@@ -1,0 +1,148 @@
+# 停车明细分析报告 Agent
+
+这是一个面试 take-home 项目：上传停车交易 CSV 和 DOCX 模板，后端异步生成带图表的停车明细分析报告。
+
+## 技术栈
+
+- 后端：FastAPI、SQLAlchemy、Alembic、PostgreSQL
+- Agent：LangGraph 工作流、LangChain 模型封装、LangSmith 可选 tracing
+- 模型：Qwen OpenAI-compatible API，默认模型 `qwen3.7-plus`
+- 数据和报表：pandas、matplotlib、python-docx
+- 前端：Vue3、Vite、TypeScript、原生 CSS
+- 测试：pytest、httpx
+- 交付：Docker Compose
+
+## 关键边界
+
+六个硬指标全部由代码确定性计算，LLM 不参与计算，也不能覆盖这些值：
+
+1. 总交易笔数
+2. 应收总金额
+3. 实收总金额
+4. 实际抵扣总额
+5. 实收率
+6. 主要支付方式
+
+LLM 只负责基于已计算事实生成管理者摘要、补充观察和建议。没有配置 Qwen key 时，系统会使用 stub LLM，方便本地测试和面试评审。
+
+## Agent Workflow
+
+当前是单智能体 LangGraph 状态工作流：
+
+```text
+load_inputs
+  -> compute_hard_metrics
+  -> profile_transactions
+  -> plan_report_with_llm
+  -> draft_narrative_with_llm
+  -> generate_charts
+  -> render_docx
+  -> persist_success
+```
+
+API 层只调用 generation harness，不直接调用 graph 节点。Harness 负责构造 graph state、更新 job 状态、管理 artifact 路径和结构化日志。
+
+## 环境变量
+
+复制 `.env.example` 为 `.env`，再填入本地值：
+
+```bash
+cp .env.example .env
+```
+
+本地已有 PostgreSQL 时，常用变量：
+
+```text
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=change-me
+POSTGRES_DB=parking_report_agent
+```
+
+Qwen 和 LangSmith 都是可选：
+
+```text
+QWEN_API_KEY=replace-me
+QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+QWEN_MODEL=qwen3.7-plus
+LANGCHAIN_TRACING_V2=false
+LANGCHAIN_API_KEY=
+LANGCHAIN_PROJECT=parking-report-agent
+```
+
+不要把真实 `.env`、API key、数据库密码提交到仓库。
+
+## 本地运行
+
+后端：
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r backend/requirements.txt
+PYTHONPATH=backend .venv/bin/alembic -c backend/alembic.ini upgrade head
+PYTHONPATH=backend .venv/bin/uvicorn app.main:app --reload
+```
+
+前端：
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+访问：
+
+- 前端开发页：http://localhost:5173
+- 后端 health：http://localhost:8000/health
+
+## Docker Compose
+
+标准启动：
+
+```bash
+docker compose up --build
+```
+
+本机如果 `docker` 不在 PATH，但 Docker Desktop 已安装，可以临时使用：
+
+```bash
+PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH" docker compose up --build
+```
+
+Compose 会启动：
+
+- 前端：http://localhost:8080
+- 后端：http://localhost:8000
+- PostgreSQL 宿主机端口：`55433`，避免撞本机已有的 `5432`
+
+## 测试
+
+```bash
+PYTHONPATH=backend .venv/bin/pytest backend/tests
+cd frontend && npm run build && npm audit --omit=dev
+```
+
+API 级测试覆盖了 submit -> status -> download，并 mock generation harness，不依赖真实 LLM。
+
+## 样例报告
+
+样例报告来自 `Interview_materials/data.csv` 和 `Interview_materials/停车明细分析报告_模板.docx` 的真实生成流程：
+
+```text
+sample_output/parking-report-sample.docx
+```
+
+样例 CSV 的硬指标为：
+
+- 总交易笔数：3674
+- 应收总金额：105795.00 元
+- 实收总金额：57397.50 元
+- 实际抵扣总额：48285.00 元
+- 实收率：54.3%
+- 主要支付方式：微信（1435 笔）
+
+## 日志和可观测性
+
+后端会输出结构化 JSON 日志，覆盖用户请求、job 生命周期、graph 节点开始/完成/失败、LLM 调用和下载请求。配置 LangSmith key 后可以开启 tracing；本地 JSON 日志仍然保留，便于评审直接检查。

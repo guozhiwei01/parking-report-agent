@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from docx import Document
+from docx.enum.style import WD_STYLE_TYPE
 from docx.shared import Inches
 
 
@@ -15,13 +16,17 @@ def render_report_docx(
 ) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     document = Document(template_path)
+    document._body.clear_content()
 
     document.add_heading("停车明细分析报告", level=1)
     document.add_paragraph(report_draft["executive_summary"])
 
     document.add_heading("一、核心指标", level=2)
     table = document.add_table(rows=1, cols=2)
-    table.style = "Table Grid"
+    try:
+        table.style = "Table Grid"
+    except KeyError:
+        pass
     table.rows[0].cells[0].text = "指标"
     table.rows[0].cells[1].text = "结果"
     rows = [
@@ -47,11 +52,22 @@ def render_report_docx(
 
     document.add_heading("三、补充观察", level=2)
     for observation in report_draft["observations"]:
-        document.add_paragraph(observation, style="List Bullet")
+        add_paragraph_with_optional_style(document, observation, "List Bullet", "· ")
 
     document.add_heading("四、管理建议", level=2)
-    for recommendation in report_draft["recommendations"]:
-        document.add_paragraph(recommendation, style="List Number")
+    for index, recommendation in enumerate(report_draft["recommendations"], start=1):
+        add_paragraph_with_optional_style(document, recommendation, "List Number", f"{index}. ")
 
     document.save(output_path)
     return output_path
+
+
+def add_paragraph_with_optional_style(document: Document, text: str, style: str, fallback_prefix: str) -> None:
+    if has_paragraph_style(document, style):
+        document.add_paragraph(text, style=style)
+    else:
+        document.add_paragraph(f"{fallback_prefix}{text}")
+
+
+def has_paragraph_style(document: Document, style: str) -> bool:
+    return any(item.name == style and item.type == WD_STYLE_TYPE.PARAGRAPH for item in document.styles)
