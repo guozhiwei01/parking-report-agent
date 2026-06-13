@@ -32,6 +32,7 @@ services:
       LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY:-}
       LANGCHAIN_PROJECT: ${LANGCHAIN_PROJECT:-parking-report-agent}
       STORAGE_DIR: /app/backend/storage
+      MIN_JOB_SECONDS: ${MIN_JOB_SECONDS:-2}
     ports:
       - "8000:8000"
     volumes:

@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     langchain_project: str = "parking-report-agent"
 
     storage_dir: str = "storage"
+    min_job_seconds: float = 0.0
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

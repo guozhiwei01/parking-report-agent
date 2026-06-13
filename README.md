@@ -74,7 +74,10 @@ QWEN_MODEL=qwen3.7-plus
 LANGCHAIN_TRACING_V2=false
 LANGCHAIN_API_KEY=
 LANGCHAIN_PROJECT=parking-report-agent
+MIN_JOB_SECONDS=2
 ```
+
+`MIN_JOB_SECONDS` 只用于演示异步任务状态，避免本地 stub 模式下瞬间完成；接入真实 Qwen API 后，主要耗时来自模型调用，可按需设为 `0`。
 
 不要把真实 `.env`、API key、数据库密码提交到仓库。
 

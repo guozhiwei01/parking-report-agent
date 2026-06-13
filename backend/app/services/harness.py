@@ -1,6 +1,8 @@
+import time
 from datetime import datetime, timezone
 from typing import Optional
 
+from app.core.config import get_settings
 from app.db.models import ReportJob
 from app.db.session import SessionLocal
 from app.services.logging import log_event
@@ -27,7 +29,9 @@ class GenerationHarness:
                 db.commit()
                 log_event("job.running", job_id=job.id)
 
+                started = time.perf_counter()
                 final_state = self._invoke_with_retry(job)
+                self._wait_for_minimum_runtime(job.id, started)
                 job.output_path = final_state["output_path"]
                 job.status = "completed"
                 job.completed_at = datetime.now(timezone.utc)
@@ -42,6 +46,17 @@ class GenerationHarness:
                     db.commit()
                 log_event("job.failed", job_id=job_id, error=str(exc))
                 raise
+
+    def _wait_for_minimum_runtime(self, job_id: str, started: float) -> None:
+        min_seconds = get_settings().min_job_seconds
+        if min_seconds <= 0:
+            return
+        elapsed = time.perf_counter() - started
+        remaining = min_seconds - elapsed
+        if remaining <= 0:
+            return
+        log_event("job.minimum_runtime.wait", job_id=job_id, remaining_seconds=round(remaining, 2))
+        time.sleep(remaining)
 
     def _initial_state(self, job: ReportJob) -> ReportState:
         return {
